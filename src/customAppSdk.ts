@@ -8,23 +8,23 @@ export enum ErrorCode {
 
 export type InitReturn =
   | {
-      readonly isError: false;
-      readonly context: {
-        readonly environmentId: string;
-        readonly userId: string;
-        readonly userEmail: string;
-        readonly userRoles: ReadonlyArray<{
-          readonly id: string;
-          readonly codename: string | null;
-        }>;
-      };
-      readonly config?: unknown;
-    }
-  | {
-      readonly isError: true;
-      readonly code: ErrorCode;
-      readonly description: string;
+    readonly isError: false;
+    readonly context: {
+      readonly environmentId: string;
+      readonly userId: string;
+      readonly userEmail: string;
+      readonly userRoles: ReadonlyArray<{
+        readonly id: string;
+        readonly codename: string | null;
+      }>;
     };
+    readonly config?: unknown;
+  }
+  | {
+  readonly isError: true;
+  readonly code: ErrorCode;
+  readonly description: string;
+};
 
 export const initCustomApp = (): Promise<InitReturn> => {
   const stopListening = startListening();

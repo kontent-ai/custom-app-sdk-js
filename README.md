@@ -23,29 +23,45 @@ The Kontent.ai Custom App SDK enhances the integration of your custom app with t
 ## Usage
 
 ```javascript
-import { initCustomApp } from "@kontent-ai/custom-app-sdk-js";
+import { initCustomApp, InitResponse } from "@kontent-ai/custom-app-sdk-js";
 
-const { context, config } = await initCustomApp();
+const response: InitResponse = await initCustomApp();
+
+if (response.isError) {
+  console.error({ errorCode: response.code, description: response.description});
+} else {
+  console.log({ config: response.config, context: response.context });
+}
 ```
 
 ### initCustomApp function
 
-Use the `initCustomApp` function to initialize the custom app. The function takes no arguments and returns a promise with a value of an object containing two properties: `context` and `config`.
+Use the `initCustomApp` function to initialize the custom app. The function takes no arguments and returns a promise with a value of an object of type `InitResponse`.
+
+### InitResponse
+
+| Property      | Type                   | Description                                                              |
+|---------------|------------------------|--------------------------------------------------------------------------|
+| `isError`     | boolean                | Determines if there was an error during initialization of the custom app |
+| `code`        | ErrorCode enum \| null | The code of the error message                                            |
+| `description` | string \| null         | The description of the error message                                     |
+| `context`     | object \| null         | Contains data provided by the Kontent.ai application                     |
+| `config`      | object \| null         | Contains JSON object specified in the custom app configuration           |
 
 ### Config object
-The `config` object is a JSON structure that can be defined within the Custom App configuration under Environment settings in the Kontent.ai app.
+The `config` object is a JSON object that can be defined within the Custom App configuration under Environment settings in the Kontent.ai app.
 
 ### Context object
 The `context` object contains data provided by the Kontent.ai application that you can leverage in your custom app. 
 
-| Property        | Type                       | Description                                                              |
-|-----------------|----------------------------|--------------------------------------------------------------------------|
-| `environmentId` | UUID                       | The environment's ID                                                     |
-| `userId`        | string                     | The current user's ID                                                    |
-| `userEmail`     | string                     | The current user's email                                                 |
-| `userRoles`     | Array of CustomAppUserRole | An array containing all the roles of the current user in the environment |
+| Property        | Type              | Description                                                              |
+|-----------------|-------------------|--------------------------------------------------------------------------|
+| `environmentId` | UUID              | The environment's ID                                                     |
+| `userId`        | string            | The current user's ID                                                    |
+| `userEmail`     | string            | The current user's email                                                 |
+| `userRoles`     | Array of UserRole | An array containing all the roles of the current user in the environment |
 
-#### CustomAppUserRole object
+#### UserRole object
 
 | Property   | Type   | Description                                                          |
 |------------|--------|----------------------------------------------------------------------|

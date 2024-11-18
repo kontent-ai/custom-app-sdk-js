@@ -1,11 +1,13 @@
 {
-  "name": "just-a-test-of-custom-apps",
-  "version": "0.2.12",
-  "description": "Just a test of custom apps",
+  "name": "@kontent-ai/custom-app-sdk-js",
+  "version": "1.0.0",
+  "description": "The Kontent.ai Custom App SDK enhances the integration of your custom app with the Kontent.ai platform.",
   "license": "MIT",
   "author": "Matus Backor",
+  "keywords": ["Kontent.ai", "Kontent AI", "Kontent Custom App SDK JS"],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "repository": "https://github.com/kontent-ai/custom-app-sdk-js",
   "type": "module",
   "exports": {
     ".": {
