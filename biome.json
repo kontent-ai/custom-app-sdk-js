@@ -1,0 +1,32 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "organizeImports": {
+    "enabled": true
+  },
+  "formatter": {
+    "indentStyle": "space",
+    "lineWidth": 100
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "indentStyle": "space",
+      "lineWidth": 100
+    }
+  },
+  "json": {
+    "formatter": {
+      "indentStyle": "space"
+    }
+  },
+  "files": {
+    "ignore": [
+      "**/*-lock.json",
+      "**/.DS_Store",
+      ".idea/**",
+      ".vscode/**",
+      ".history/**",
+      "node_modules/**"
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "just-a-test-of-custom-apps",
+  "version": "0.2.12",
+  "description": "Just a test of custom apps",
+  "license": "MIT",
+  "author": "Matus Backor",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "format-check": "npx @biomejs/biome ci ./src",
+    "format": "npx @biomejs/biome check --write ./src"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^22.9.0",
+    "typescript": "^5.6.3"
+  }
+}

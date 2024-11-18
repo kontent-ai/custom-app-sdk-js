@@ -10,5 +10,9 @@ jobs: # Specifies the section where we describe our jobs.
   Build: # Specific job section.
     runs-on: ubuntu-latest   # Describes the environment.
     steps: # Specifies the section where we describe the job's steps.
-    - name: Output some string
-      run: echo "Set some actual CI steps"
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Check code format
+        run: npm run fmt:check
