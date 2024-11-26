@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 enum ErrorCode {
-  Nnn = 'Nnn',
+  UnknownMessage = 'unknown-message',
 }
 
 export const ErrorMessage = z

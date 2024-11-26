@@ -3,10 +3,10 @@ import { ErrorMessage } from './iframeSchema';
 import { matchesSchema } from './matchesSchema';
 
 export enum ErrorCode {
-  Nnn = 'Nnn',
+  UnknownMessage = 'unknown-message',
 }
 
-export type InitReturn =
+export type InitResponse =
   | {
     readonly isError: false;
     readonly context: {
@@ -26,7 +26,7 @@ export type InitReturn =
   readonly description: string;
 };
 
-export const initCustomApp = (): Promise<InitReturn> => {
+export const initCustomApp = (): Promise<InitResponse> => {
   const stopListening = startListening();
 
   return new Promise((resolve, reject) => {
@@ -38,6 +38,7 @@ export const initCustomApp = (): Promise<InitReturn> => {
           payload: null,
         },
         (response) => {
+
           if (matchesSchema(ErrorMessage, response)) {
             resolve({ isError: true, code: response.code, description: response.description });
           } else {
