@@ -1,6 +1,6 @@
-import { isType } from './isType';
 import { sendMessage, startListening } from './iframeMessenger';
 import { ErrorMessage } from './iframeSchema';
+import { matchesSchema } from './matchesSchema';
 
 export enum ErrorCode {
   Nnn = 'Nnn',
@@ -9,18 +9,16 @@ export enum ErrorCode {
 export type InitReturn =
   | {
       readonly isError: false;
-      readonly payload: {
-        readonly context: {
-          readonly environmentId: string;
-          readonly userId: string;
-          readonly userEmail: string;
-          readonly userRoles: ReadonlyArray<{
-            readonly id: string;
-            readonly codename: string | null;
-          }>;
-        };
-        readonly config?: unknown;
+      readonly context: {
+        readonly environmentId: string;
+        readonly userId: string;
+        readonly userEmail: string;
+        readonly userRoles: ReadonlyArray<{
+          readonly id: string;
+          readonly codename: string | null;
+        }>;
       };
+      readonly config?: unknown;
     }
   | {
       readonly isError: true;
@@ -29,25 +27,26 @@ export type InitReturn =
     };
 
 export const initCustomApp = (): Promise<InitReturn> => {
-  startListening();
+  const stopListening = startListening();
 
   return new Promise((resolve, reject) => {
     try {
-      sendMessage<'init-request', '1.0.0'>(
+      sendMessage<'init@1.0.0'>(
         {
           type: 'init-request',
           version: '1.0.0',
           payload: null,
         },
         (response) => {
-          if (isType(ErrorMessage, response)) {
+          if (matchesSchema(ErrorMessage, response)) {
             resolve({ isError: true, code: response.code, description: response.description });
           } else {
-            resolve({ isError: false, payload: response.payload });
+            resolve({ ...response.payload, isError: false });
           }
         },
       );
     } catch (error) {
+      stopListening();
       reject(error);
     }
   });

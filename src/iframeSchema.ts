@@ -13,8 +13,6 @@ export const ErrorMessage = z
   })
   .readonly();
 
-type ErrorMessage = z.infer<typeof ErrorMessage>;
-
 const ClientInitV1Request = z
   .object({
     type: z.literal('init-request'),
@@ -23,8 +21,6 @@ const ClientInitV1Request = z
     payload: z.null(),
   })
   .readonly();
-
-type ClientInitV1Request = z.infer<typeof ClientInitV1Request>;
 
 const ClientInitV1Response = z
   .object({
@@ -54,9 +50,8 @@ const ClientInitV1Response = z
     requestId: z.string().uuid(),
     version: z.literal('1.0.0'),
   })
+  .or(ErrorMessage)
   .readonly();
-
-type ClientInitV1Response = z.infer<typeof ClientInitV1Response>;
 
 const ClientInitV2Request = z
   .object({
@@ -66,8 +61,6 @@ const ClientInitV2Request = z
     version: z.literal('2.0.0'),
   })
   .readonly();
-
-type ClientInitV2Request = z.infer<typeof ClientInitV2Request>;
 
 const ClientInitV2Response = z
   .object({
@@ -81,9 +74,8 @@ const ClientInitV2Response = z
     requestId: z.string().uuid(),
     version: z.literal('2.0.0'),
   })
+  .or(ErrorMessage)
   .readonly();
-
-type ClientInitV2Response = z.infer<typeof ClientInitV2Response>;
 
 const GetV1Request = z
   .object({
@@ -94,8 +86,6 @@ const GetV1Request = z
   })
   .readonly();
 
-type GetV1Request = z.infer<typeof GetV1Request>;
-
 const GetV1Response = z
   .object({
     type: z.literal('get-response'),
@@ -103,41 +93,34 @@ const GetV1Response = z
     version: z.literal('1.0.0'),
     payload: z.null(),
   })
+  .or(ErrorMessage)
   .readonly();
 
-type GetV1Response = z.infer<typeof GetV1Response>;
-
-const HostPingV1Request = z.object({
-  type: z.literal('ping-request'),
+const HostItemDeletedRequest = z.object({
+  type: z.literal('item-deleted-request'),
+  requestId: z.string().uuid(),
   version: z.literal('1.0.0'),
-  payload: z.boolean(),
+  payload: z.object({ itemId: z.string().uuid() }).readonly(),
 });
-
-type HostPingV1Request = z.infer<typeof HostPingV1Request>;
-
-export type CustomAppMessage =
-  | [ClientInitV1Request, ClientInitV1Response | ErrorMessage]
-  | [ClientInitV2Request, ClientInitV2Response | ErrorMessage]
-  | [GetV1Request, GetV1Response | ErrorMessage];
 
 export type Schema = {
   client: {
     'init@1.0.0': {
-      request: ClientInitV1Request;
-      response: ClientInitV1Response;
+      request: z.infer<typeof ClientInitV1Request>;
+      response: z.infer<typeof ClientInitV1Response>;
     };
     'init@2.0.0': {
-      request: ClientInitV2Request;
-      response: ClientInitV2Response;
+      request: z.infer<typeof ClientInitV2Request>;
+      response: z.infer<typeof ClientInitV2Response>;
     };
     'get@1.0.0': {
-      request: GetV1Request;
-      response: GetV1Response;
+      request: z.infer<typeof GetV1Request>;
+      response: z.infer<typeof GetV1Response>;
     };
   };
   host: {
-    'ping@1.0.0': {
-      request: HostPingV1Request;
+    'item-deleted@1.0.0': {
+      request: z.infer<typeof HostItemDeletedRequest>;
       response: null;
     };
   };
