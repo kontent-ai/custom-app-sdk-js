@@ -16,4 +16,4 @@ jobs: # Specifies the section where we describe our jobs.
       - name: Build
         run: npm run build
       - name: Check code format
-        run: npm run fmt:check
+        run: npm run format-check

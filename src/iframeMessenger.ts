@@ -4,7 +4,7 @@ import type { AllIncomingMessages } from './utilityTypes';
 
 let callbacks: Readonly<Record<string, (data: unknown) => void>> = {};
 
-export const startListening = (): () => void => {
+export const startListening = (): (() => void) => {
   if (window.self === window.top) {
     throw new Error('Custom app is not hosted in an IFrame.');
   }
