@@ -8,21 +8,25 @@
 
 [![Discord][discussion-shield]][discussion-url]
 
-<!-- ABOUT THE PROJECT -->
 ## About The Project
 
-The Kontent.ai Custom App SDK enhances the integration of your custom app with the Kontent.ai platform.
-<!-- GETTING STARTED -->
+A JavaScript SDK for communicating with the Kontent.ai Custom App API.
+It facilitates the communication between the Kontent.ai app and the custom app providing access to the configuration and context data.
+
 ## Getting Started
+
 ### Installation
-   ```sh
-      npm install @kontent-ai/custom-app-sdk-js
-   ```
 
-<!-- USAGE EXAMPLES -->
-## Usage
+```sh
+npm install @kontent-ai/custom-app-sdk-js
+```
 
-```javascript
+> [!IMPORTANT]  
+> The SDK attaches event listeners to communicate with the Kontent.ai app. Make sure to only include the SDK in the browser environment.
+
+## Usage example
+
+```typescript
 import { getCustomAppContext, CustomAppContext } from "@kontent-ai/custom-app-sdk-js";
 
 const response: CustomAppContext = await getCustomAppContext();
@@ -34,11 +38,13 @@ if (response.isError) {
 }
 ```
 
-### getCustomAppContext function
+## API Reference
+
+### getCustomAppContext
 
 Use the `getCustomAppContext` function to retrieve context of the custom app. The function takes no arguments and returns a promise with a value of an object of type `CustomAppContext`.
 
-### CustomAppContext
+#### CustomAppContext
 
 | Property      | Type                   | Description                                                                  |
 |---------------|------------------------|------------------------------------------------------------------------------|
@@ -48,10 +54,10 @@ Use the `getCustomAppContext` function to retrieve context of the custom app. Th
 | `context`     | object \| null         | Contains data provided by the Kontent.ai application                         |
 | `config`      | object \| null         | Contains JSON object specified in the custom app configuration               |
 
-### Config object
+#### Config 
 The `config` object is a JSON object that can be defined within the Custom App configuration under Environment settings in the Kontent.ai app.
 
-### Context object
+#### Context 
 The `context` object contains data provided by the Kontent.ai application that you can leverage in your custom app. 
 
 | Property        | Type              | Description                                                              |
@@ -61,28 +67,24 @@ The `context` object contains data provided by the Kontent.ai application that y
 | `userEmail`     | string            | The current user's email                                                 |
 | `userRoles`     | Array of UserRole | An array containing all the roles of the current user in the environment |
 
-#### UserRole object
+#### UserRole 
 
 | Property   | Type   | Description                                                          |
 |------------|--------|----------------------------------------------------------------------|
 | `id`       | UUID   | The role's ID                                                        |
 | `codename` | string | The role's codename - applicable only for the _Project manager_ role |
 
-<!-- CONTRIBUTING -->
 ## Contributing
 
 For Contributing please see  <a href="./CONTRIBUTING.md">`CONTRIBUTING.md`</a> for more information.
 
 
 
-<!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See [`LICENSE.md`](./LICENSE.md) for more information.
 
 
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://github.com/kontent-ai/Home/wiki/Checklist-for-publishing-a-new-OS-project#badges-->
 [contributors-shield]: https://img.shields.io/github/contributors/kontent-ai/custom-app-sdk-js.svg?style=for-the-badge
 [contributors-url]: https://github.com/kontent-ai/custom-app-sdk-js/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/kontent-ai/custom-app-sdk-js.svg?style=for-the-badge
