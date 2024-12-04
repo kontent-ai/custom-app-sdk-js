@@ -4,18 +4,6 @@ import type { AllClientResponses } from "./utilityTypes";
 
 let callbacks: Readonly<Record<string, (data: unknown) => void>> = {};
 
-export const startListening = (): (() => void) => {
-  if (window.self === window.top) {
-    throw new Error("Custom app is not hosted in an IFrame.");
-  }
-
-  window.addEventListener("message", processMessage, true);
-
-  return () => {
-    window.removeEventListener("message", processMessage, true);
-  };
-};
-
 export const sendMessage = <TMessageType extends keyof Schema["client"]>(
   message: Omit<Schema["client"][TMessageType]["request"], "requestId">,
   callback: (data: Schema["client"][TMessageType]["response"]) => void,
@@ -33,3 +21,9 @@ const processMessage = (event: MessageEvent<AllClientResponses>): void => {
   );
   callback?.(message);
 };
+
+if (window.self === window.top) {
+  throw new Error("Custom app is not hosted in an IFrame.");
+}
+
+window.addEventListener("message", processMessage, true);

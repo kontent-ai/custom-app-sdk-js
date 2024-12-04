@@ -1,4 +1,4 @@
-import { sendMessage, startListening } from "./iframeMessenger";
+import { sendMessage } from "./iframeMessenger";
 import { ErrorMessage } from "./iframeSchema";
 import { matchesSchema } from "./matchesSchema";
 
@@ -26,10 +26,8 @@ export type CustomAppContext =
       readonly description: string;
     };
 
-export const getCustomAppContext = (): Promise<CustomAppContext> => {
-  const stopListening = startListening();
-
-  return new Promise((resolve, reject) => {
+export const getCustomAppContext = (): Promise<CustomAppContext> =>
+  new Promise((resolve, reject) => {
     try {
       sendMessage<"get-context@1.0.0">(
         {
@@ -47,8 +45,5 @@ export const getCustomAppContext = (): Promise<CustomAppContext> => {
       );
     } catch (error) {
       reject(error);
-    } finally {
-      stopListening();
     }
   });
-};
