@@ -1,0 +1,31 @@
+{
+  "name": "@kontent-ai/custom-app-sdk-js",
+  "version": "1.0.0",
+  "description": "The Kontent.ai Custom App SDK enhances the integration of your custom app with the Kontent.ai platform.",
+  "license": "MIT",
+  "author": "Kontent.ai",
+  "keywords": ["Kontent.ai", "Kontent AI", "Kontent Custom App SDK JS"],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "repository": "https://github.com/kontent-ai/custom-app-sdk-js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "format-check": "npx @biomejs/biome ci ./src",
+    "format": "npx @biomejs/biome check --write ./src"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^22.9.0",
+    "typescript": "^5.6.3"
+  }
+}

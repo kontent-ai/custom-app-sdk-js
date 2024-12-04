@@ -1,10 +1,10 @@
-# Ways to contribute 
+# Ways to contribute
 <img align="right" width="100" height="100" src="https://i.imgur.com/PYTV0jP.png">
 
 There are many different ways in which you can contribute. One of the easiest ways is simply to use our software and provide us with your feedback through the right channel. You can also help us improve the open-source projects by submitting pull requests with code and documentation changes.
 
 ## Where to get support
-Please note that **level of provided support is always determined by the LICENSE** of a given open-source project. Also, always make sure you use the **[latest version](../../releases)** of any given OS project. We can't provide any help for older versions. We don't want to make things complicated so we try to take the same approach in all our repositories. 
+Please note that **level of provided support is always determined by the LICENSE** of a given open-source project. Also, always make sure you use the **[latest version](../../releases)** of any given OS project. We can't provide any help for older versions. We don't want to make things complicated so we try to take the same approach in all our repositories.
 
 ### I found a bug in a Kontent.ai open-source project
 <img align="right" width="100" height="100" src="https://i.imgur.com/TYIQdpv.png">
@@ -21,7 +21,7 @@ Our team members and the community monitor these channels on a regular basis.
 ### I want to report a security bug
 <img align="right" width="100" height="100" src="https://i.imgur.com/z82nnJB.png">
 
-Security issues and bugs should be reported privately, via email, to Kontent.ai Security Team [security@kontent.ai](mailto:security@kontent.ai). For more details, check the [Security policy](SECURITY.md). 
+Security issues and bugs should be reported privately, via email, to Kontent.ai Security Team [security@kontent.ai](mailto:security@kontent.ai). For more details, check the [Security policy](SECURITY.md).
 
 ### I have an idea for a new feature (or feedback on existing functionality)
 <img align="right" width="100" height="100" src="https://i.imgur.com/rUFkyPy.png">
@@ -37,9 +37,9 @@ You might also read these two blogs posts on contributing code: [Open Source Con
 
 
 ### Example - process of contribution
-If not stated otherwise, we use [feature branch workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow). 
+If not stated otherwise, we use [feature branch workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow).
 
-To start with coding, fork the repository you want to contribute to, create a new branch, and start coding. Once the functionality is [done](#Definition-of-Done), you can submit a [pull request](https://help.github.com/articles/about-pull-requests/). 
+To start with coding, fork the repository you want to contribute to, create a new branch, and start coding. Once the functionality is [done](#Definition-of-Done), you can submit a [pull request](https://help.github.com/articles/about-pull-requests/).
 
 ### Definition of Done
 <img align="right" width="100" height="100" src="https://i.imgur.com/g82Ohdv.png">
