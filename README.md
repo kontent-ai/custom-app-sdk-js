@@ -18,16 +18,16 @@ It facilitates the communication between the Kontent.ai app and the custom app p
 ### Installation
 
 ```sh
-npm install @kontent-ai/custom-app-sdk-js
+npm install @kontent-ai/custom-app-sdk
 ```
 
 > [!IMPORTANT]  
-> The SDK attaches event listeners to communicate with the Kontent.ai app. Make sure to only include the SDK in the browser environment.
+> The SDK attaches event listeners to communicate with the Kontent.ai app. Make sure to include the SDK only in the browser environment.
 
 ## Usage example
 
 ```typescript
-import { getCustomAppContext, CustomAppContext } from "@kontent-ai/custom-app-sdk-js";
+import { getCustomAppContext, CustomAppContext } from "@kontent-ai/custom-app-sdk";
 
 const response: CustomAppContext = await getCustomAppContext();
 
@@ -42,7 +42,7 @@ if (response.isError) {
 
 ### getCustomAppContext
 
-Use the `getCustomAppContext` function to retrieve context of the custom app. The function takes no arguments and returns a promise with a value of an object of type `CustomAppContext`.
+Use the `getCustomAppContext` function to retrieve the context of the custom app. The function takes no arguments and returns a promise with a value of an object of type `CustomAppContext`.
 
 #### CustomAppContext
 
