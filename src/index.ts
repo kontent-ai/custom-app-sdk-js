@@ -1,2 +1,2 @@
-export { getCustomAppContext } from "./customAppSdk";
-export { CustomAppContext } from "./customAppSdk";
+export { getCustomAppContext, getPageContext } from "./customAppSdk";
+export { CustomAppContext, PageContext } from "./customAppSdk";

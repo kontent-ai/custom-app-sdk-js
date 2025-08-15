@@ -47,3 +47,81 @@ export const getCustomAppContext = (): Promise<CustomAppContext> =>
       reject(error);
     }
   });
+
+export type PageContext =
+  | {
+      readonly isError: false;
+      readonly pageContext: {
+        readonly route: {
+          readonly path: string;
+          readonly params: Readonly<Record<string, string>>;
+          readonly query: Readonly<Record<string, string>>;
+        };
+        readonly page: {
+          readonly title: string;
+          readonly breadcrumbs: ReadonlyArray<{
+            readonly label: string;
+            readonly path?: string;
+          }>;
+        };
+      } & (
+        | {
+            readonly pageType: "item-editor";
+            readonly contentItem: {
+              readonly id: string;
+              readonly codename: string;
+              readonly name: string;
+              readonly type: {
+                readonly id: string;
+                readonly codename: string;
+              };
+              readonly language: {
+                readonly id: string;
+                readonly codename: string;
+              };
+              readonly workflowStep?: {
+                readonly id: string;
+                readonly codename: string;
+              };
+            };
+            readonly editor: {
+              readonly validationErrors: Readonly<Record<string, ReadonlyArray<string>>>;
+              readonly elements: ReadonlyArray<{
+                readonly id: string;
+                readonly type: string;
+                readonly value: string;
+              }>;
+            };
+          }
+        | {
+            readonly pageType: "other";
+          }
+      ) | null;
+    }
+  | {
+      readonly isError: true;
+      readonly code: ErrorCode;
+      readonly description: string;
+    };
+
+export const getPageContext = (): Promise<PageContext> =>
+  new Promise((resolve, reject) => {
+    try {
+      sendMessage<"get-page-context@1.0.0">(
+        {
+          type: "get-page-context-request",
+          version: "1.0.0",
+          payload: null,
+        },
+        (response) => {
+          if (matchesSchema(ErrorMessage, response)) {
+            resolve({ isError: true, code: response.code, description: response.description });
+          } else {
+            resolve({ ...response.payload, isError: false });
+          }
+        },
+      );
+    } catch (error) {
+      reject(error);
+    }
+  });
