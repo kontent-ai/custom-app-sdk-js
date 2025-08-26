@@ -125,3 +125,52 @@ export const getPageContext = (): Promise<PageContext> =>
       reject(error);
     }
   });
+
+export type SetPopupSizeResult =
+  | {
+      readonly isError: false;
+      readonly success: boolean;
+    }
+  | {
+      readonly isError: true;
+      readonly code: ErrorCode;
+      readonly description: string;
+    };
+
+export type PopupSizeDimension =
+  | {
+      readonly unit: "px";
+      readonly value: number;
+    }
+  | {
+      readonly unit: "%";
+      readonly value: number;
+    };
+
+export const setPopupSize = (
+  width: PopupSizeDimension,
+  height: PopupSizeDimension,
+): Promise<SetPopupSizeResult> =>
+  new Promise((resolve, reject) => {
+    try {
+      sendMessage<"set-popup-size@1.0.0">(
+        {
+          type: "set-popup-size-request",
+          version: "1.0.0",
+          payload: {
+            width,
+            height,
+          },
+        },
+        (response) => {
+          if (matchesSchema(ErrorMessage, response)) {
+            resolve({ isError: true, code: response.code, description: response.description });
+          } else {
+            resolve({ ...response.payload, isError: false });
+          }
+        },
+      );
+    } catch (error) {
+      reject(error);
+    }
+  });

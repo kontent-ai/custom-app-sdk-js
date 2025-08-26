@@ -164,9 +164,65 @@ const ClientGetPageContextV1Response = z
   .or(ErrorMessage)
   .readonly();
 
+const ClientSetPopupSizeV1Request = z
+  .object({
+    type: z.literal("set-popup-size-request"),
+    requestId: z.string().uuid(),
+    version: z.literal("1.0.0"),
+    payload: z
+      .object({
+        width: z.union([
+          z
+            .object({
+              unit: z.literal("px"),
+              value: z.number().min(200).max(2000),
+            })
+            .readonly(),
+          z
+            .object({
+              unit: z.literal("%"),
+              value: z.number().min(10).max(100),
+            })
+            .readonly(),
+        ]),
+        height: z.union([
+          z
+            .object({
+              unit: z.literal("px"),
+              value: z.number().min(150).max(1500),
+            })
+            .readonly(),
+          z
+            .object({
+              unit: z.literal("%"),
+              value: z.number().min(10).max(100),
+            })
+            .readonly(),
+        ]),
+      })
+      .readonly(),
+  })
+  .readonly();
+
+const ClientSetPopupSizeV1Response = z
+  .object({
+    type: z.literal("set-popup-size-response"),
+    isError: z.boolean(),
+    payload: z
+      .object({
+        success: z.boolean(),
+      })
+      .readonly(),
+    requestId: z.string().uuid(),
+    version: z.literal("1.0.0"),
+  })
+  .or(ErrorMessage)
+  .readonly();
+
 export const AllClientRequestMessages = z.union([
   ClientGetContextV1Request,
   ClientGetPageContextV1Request,
+  ClientSetPopupSizeV1Request,
 ]);
 
 export type Schema = {
@@ -178,6 +234,10 @@ export type Schema = {
     "get-page-context@1.0.0": {
       request: z.infer<typeof ClientGetPageContextV1Request>;
       response: z.infer<typeof ClientGetPageContextV1Response>;
+    };
+    "set-popup-size@1.0.0": {
+      request: z.infer<typeof ClientSetPopupSizeV1Request>;
+      response: z.infer<typeof ClientSetPopupSizeV1Response>;
     };
   };
 };

@@ -1,2 +1,2 @@
-export { getCustomAppContext, getPageContext } from "./customAppSdk";
-export { CustomAppContext, PageContext } from "./customAppSdk";
+export { getCustomAppContext, getPageContext, setPopupSize } from "./customAppSdk";
+export { CustomAppContext, PageContext, SetPopupSizeResult, PopupSizeDimension } from "./customAppSdk";
