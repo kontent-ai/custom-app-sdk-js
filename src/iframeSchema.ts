@@ -54,7 +54,7 @@ const ClientGetContextV1Response = z
   .or(ErrorMessage)
   .readonly();
 
-const ClientGetPageContextV1Request = z
+const ClientGetCustomAppPageContextV1Request = z
   .object({
     type: z.literal("get-page-context-request"),
     requestId: z.string().uuid(),
@@ -63,99 +63,50 @@ const ClientGetPageContextV1Request = z
   })
   .readonly();
 
-const basePageContextProperties = {
-  route: z
-    .object({
-      path: z.string(),
-      params: z.record(z.string()),
-      query: z.record(z.string()),
-    })
-    .readonly(),
-  page: z
-    .object({
-      title: z.string(),
-      breadcrumbs: z
-        .array(
-          z
-            .object({
-              label: z.string(),
-              path: z.string().optional(),
-            })
-            .readonly()
-        )
-        .readonly(),
-    })
-    .readonly(),
+const baseCustomAppPageContextProperties = {
+  path: z.string(),
+  pageTitle: z.string(),
 };
 
-const ItemEditorPageContextSchema = z
+const ItemEditorCustomAppPageContextSchema = z
   .object({
-    ...basePageContextProperties,
+    ...baseCustomAppPageContextProperties,
     pageType: z.literal("item-editor"),
     contentItem: z
       .object({
         id: z.string().uuid(),
         codename: z.string(),
-        name: z.string(),
-        type: z
-          .object({
-            id: z.string().uuid(),
-            codename: z.string(),
-          })
-          .readonly(),
         language: z
           .object({
             id: z.string().uuid(),
             codename: z.string(),
           })
           .readonly(),
-        workflowStep: z
-          .object({
-            id: z.string().uuid(),
-            codename: z.string(),
-          })
-          .readonly()
-          .optional(),
       })
       .readonly(),
-    editor: z
-      .object({
-        validationErrors: z.record(z.string(), z.array(z.string()).readonly()).readonly(),
-        elements: z
-          .array(
-            z
-              .object({
-                id: z.string(),
-                type: z.string(),
-                value: z.string(),
-              })
-              .readonly()
-          )
-          .readonly(),
-      })
-      .readonly(),
+    validationErrors: z.record(z.string(), z.array(z.string()).readonly()).readonly(),
   })
   .readonly();
 
-const OtherPageContextSchema = z
+const CustomAppOtherPageContextSchema = z
   .object({
-    ...basePageContextProperties,
+    ...baseCustomAppPageContextProperties,
     pageType: z.literal("other"),
   })
   .readonly();
 
-const PageContextSchema = z.union([
-  ItemEditorPageContextSchema,
-  OtherPageContextSchema,
+const CustomAppPageContextSchema = z.union([
+  ItemEditorCustomAppPageContextSchema,
+  CustomAppOtherPageContextSchema,
 ]);
 
-const ClientGetPageContextV1Response = z
+const ClientGetCustomAppPageContextV1Response = z
   .object({
     type: z.literal("get-page-context-response"),
     isError: z.boolean(),
     payload: z
       .object({
-        pageContext: PageContextSchema.nullable(),
+        pageContext: CustomAppPageContextSchema.nullable(),
       })
       .readonly(),
     requestId: z.string().uuid(),
@@ -221,7 +172,7 @@ const ClientSetPopupSizeV1Response = z
 
 export const AllClientRequestMessages = z.union([
   ClientGetContextV1Request,
-  ClientGetPageContextV1Request,
+  ClientGetCustomAppPageContextV1Request,
   ClientSetPopupSizeV1Request,
 ]);
 
@@ -232,8 +183,8 @@ export type Schema = {
       response: z.infer<typeof ClientGetContextV1Response>;
     };
     "get-page-context@1.0.0": {
-      request: z.infer<typeof ClientGetPageContextV1Request>;
-      response: z.infer<typeof ClientGetPageContextV1Response>;
+      request: z.infer<typeof ClientGetCustomAppPageContextV1Request>;
+      response: z.infer<typeof ClientGetCustomAppPageContextV1Response>;
     };
     "set-popup-size@1.0.0": {
       request: z.infer<typeof ClientSetPopupSizeV1Request>;

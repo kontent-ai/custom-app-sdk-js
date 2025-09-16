@@ -51,52 +51,29 @@ export const getCustomAppContext = (): Promise<CustomAppContext> =>
 export type PageContext =
   | {
       readonly isError: false;
-      readonly pageContext: {
-        readonly route: {
-          readonly path: string;
-          readonly params: Readonly<Record<string, string>>;
-          readonly query: Readonly<Record<string, string>>;
-        };
-        readonly page: {
-          readonly title: string;
-          readonly breadcrumbs: ReadonlyArray<{
-            readonly label: string;
-            readonly path?: string;
-          }>;
-        };
-      } & (
-        | {
-            readonly pageType: "item-editor";
-            readonly contentItem: {
-              readonly id: string;
-              readonly codename: string;
-              readonly name: string;
-              readonly type: {
-                readonly id: string;
-                readonly codename: string;
-              };
-              readonly language: {
-                readonly id: string;
-                readonly codename: string;
-              };
-              readonly workflowStep?: {
-                readonly id: string;
-                readonly codename: string;
-              };
-            };
-            readonly editor: {
-              readonly validationErrors: Readonly<Record<string, ReadonlyArray<string>>>;
-              readonly elements: ReadonlyArray<{
-                readonly id: string;
-                readonly type: string;
-                readonly value: string;
-              }>;
-            };
-          }
-        | {
-            readonly pageType: "other";
-          }
-      ) | null;
+      readonly pageContext:
+        | (
+            | {
+                readonly path: string;
+                readonly pageTitle: string;
+                readonly pageType: "item-editor";
+                readonly contentItem: {
+                  readonly id: string;
+                  readonly codename: string;
+                  readonly language: {
+                    readonly id: string;
+                    readonly codename: string;
+                  };
+                };
+                readonly validationErrors: Readonly<Record<string, ReadonlyArray<string>>>;
+              }
+            | {
+                readonly path: string;
+                readonly pageTitle: string;
+                readonly pageType: "other";
+              }
+          )
+        | null;
     }
   | {
       readonly isError: true;
