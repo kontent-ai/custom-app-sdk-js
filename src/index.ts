@@ -6,3 +6,4 @@ export {
   PopupSizeDimension,
 } from "./customAppSdk";
 export { CustomAppPageContextProperties } from "./iframeSchema";
+export { PageContext } from "./pageContexts";

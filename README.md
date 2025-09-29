@@ -86,24 +86,22 @@ The `context` object contains data provided by the Kontent.ai application that y
 
 ### getPageContext
 
-Use the `getPageContext` function to retrieve contextual information about the current page within the Kontent.ai application. The function takes an array of property names as an argument and returns a promise with a value of an object of type `PageContextResult`.
+Use the `getPageContext` function to retrieve contextual information about the current page within the Kontent.ai application. The function automatically detects the current page type and returns the appropriate context with all relevant properties for that page type.
 
 #### Parameters
 
-| Parameter    | Type                                         | Description                                          |
-|--------------|----------------------------------------------|------------------------------------------------------|
-| `properties` | Array<keyof CustomAppPageContextProperties> | An array of property names to retrieve from the page context |
+None - the function takes no parameters and automatically determines what properties to fetch based on the current page.
 
-#### PageContextResult
+#### Return Type
 
-`PageContextResult` is a discriminated union type that can be in one of two states:
+The function returns a promise that resolves to a discriminated union type with two possible states:
 
 ##### Success Response (`isError: false`)
 
 | Property      | Type                   | Description                                                                  |
 |---------------|------------------------|------------------------------------------------------------------------------|
 | `isError`     | `false`                | Indicates the request was successful                                         |
-| `properties`  | object                 | Contains the requested page context properties                              |
+| `context`     | `PageContext`          | A discriminated union of page-specific context objects                      |
 
 ##### Error Response (`isError: true`)
 
@@ -113,36 +111,57 @@ Use the `getPageContext` function to retrieve contextual information about the c
 | `code`        | ErrorCode enum         | The code of the error message                                                |
 | `description` | string                 | The description of the error message                                         |
 
-#### CustomAppPageContextProperties
+#### PageContext
 
-The following properties can be requested through the `getPageContext` function:
+`PageContext` is a discriminated union type based on the `currentPage` property. Each page type includes only the relevant properties for that specific page:
+
+##### Item Editor Page Context
+
+When `currentPage` is `"itemEditor"`, the context includes:
 
 | Property                | Type                                  | Description                                                          |
 |-------------------------|---------------------------------------|----------------------------------------------------------------------|
-| `contentItemId`         | string \| undefined                   | The ID of the content item being viewed or edited                   |
-| `languageId`            | string \| undefined                   | The ID of the current language                                      |
-| `path`                  | string \| undefined                   | The current path within the Kontent.ai application                  |
-| `pageTitle`             | string \| undefined                   | The title of the current page                                       |
-| `validationErrors`      | Record<string, string[]> \| undefined | A record of validation errors for content item fields               |
+| `currentPage`           | `"itemEditor"`                       | Identifies this as an item editor page                              |
+| `contentItemId`         | UUID                                | The ID of the content item being edited                             |
+| `languageId`            | UUID                                | The ID of the current language                                      |
+| `path`                  | string                                | The current path within the Kontent.ai application                  |
+| `pageTitle`             | string                                | The title of the current page                                       |
+| `validationErrors`      | Record<string, string[]>              | A record of validation errors for content item fields               |
+
+##### Other Page Context
+
+When `currentPage` is `"other"`, the context includes:
+
+| Property                | Type                                  | Description                                                          |
+|-------------------------|---------------------------------------|----------------------------------------------------------------------|
+| `currentPage`           | `"other"`                            | Identifies this as any other page type                              |
+| `path`                  | string                                | The current path within the Kontent.ai application                  |
+| `pageTitle`             | string                                | The title of the current page                                       |
 
 #### Usage Example
 
 ```typescript
-import { getPageContext, PageContextResult, CustomAppPageContextProperties } from "@kontent-ai/custom-app-sdk";
+import { getPageContext, PageContext } from "@kontent-ai/custom-app-sdk";
 
-// Request specific properties
-const response: PageContextResult<["contentItemId", "languageId"]> = await getPageContext([
-  "contentItemId",
-  "languageId"
-]);
+// Get page context - automatically fetches appropriate properties based on current page
+const response = await getPageContext();
 
 if (response.isError) {
   console.error({ errorCode: response.code, description: response.description });
 } else {
-  console.log({
-    contentItemId: response.properties.contentItemId,
-    languageId: response.properties.languageId
-  });
+  // TypeScript will narrow the type based on currentPage
+  if (response.context.currentPage === "itemEditor") {
+    console.log({
+      contentItemId: response.context.contentItemId,
+      languageId: response.context.languageId,
+      validationErrors: response.context.validationErrors
+    });
+  } else {
+    console.log({
+      path: response.context.path,
+      pageTitle: response.context.pageTitle
+    });
+  }
 }
 ```
 
