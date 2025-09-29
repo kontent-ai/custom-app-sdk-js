@@ -46,13 +46,23 @@ Use the `getCustomAppContext` function to retrieve the context of the custom app
 
 #### CustomAppContext
 
+`CustomAppContext` is a discriminated union type that can be in one of two states:
+
+##### Success Response (`isError: false`)
+
 | Property      | Type                   | Description                                                                  |
 |---------------|------------------------|------------------------------------------------------------------------------|
-| `isError`     | boolean                | Determines if there was an error while getting the context of the custom app |
-| `code`        | ErrorCode enum \| null | The code of the error message                                                |
-| `description` | string \| null         | The description of the error message                                         |
-| `context`     | object \| null         | Contains data provided by the Kontent.ai application                         |
-| `config`      | object \| null         | Contains JSON object specified in the custom app configuration               |
+| `isError`     | `false`                | Indicates the request was successful                                         |
+| `context`     | object                 | Contains data provided by the Kontent.ai application                        |
+| `config`      | unknown \| undefined   | Contains JSON object specified in the custom app configuration              |
+
+##### Error Response (`isError: true`)
+
+| Property      | Type                   | Description                                                                  |
+|---------------|------------------------|------------------------------------------------------------------------------|
+| `isError`     | `true`                 | Indicates an error occurred                                                  |
+| `code`        | ErrorCode enum         | The code of the error message                                                |
+| `description` | string                 | The description of the error message                                         |
 
 #### Config 
 The `config` object is a JSON object that can be defined within the Custom App configuration under Environment settings in the Kontent.ai app.
@@ -86,12 +96,22 @@ Use the `getPageContext` function to retrieve contextual information about the c
 
 #### PageContextResult
 
+`PageContextResult` is a discriminated union type that can be in one of two states:
+
+##### Success Response (`isError: false`)
+
 | Property      | Type                   | Description                                                                  |
 |---------------|------------------------|------------------------------------------------------------------------------|
-| `isError`     | boolean                | Determines if there was an error while getting the page context             |
-| `code`        | ErrorCode enum \| null | The code of the error message                                                |
-| `description` | string \| null         | The description of the error message                                         |
-| `properties`  | object \| null         | Contains the requested page context properties                              |
+| `isError`     | `false`                | Indicates the request was successful                                         |
+| `properties`  | object                 | Contains the requested page context properties                              |
+
+##### Error Response (`isError: true`)
+
+| Property      | Type                   | Description                                                                  |
+|---------------|------------------------|------------------------------------------------------------------------------|
+| `isError`     | `true`                 | Indicates an error occurred                                                  |
+| `code`        | ErrorCode enum         | The code of the error message                                                |
+| `description` | string                 | The description of the error message                                         |
 
 #### CustomAppPageContextProperties
 
