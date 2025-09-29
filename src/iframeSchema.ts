@@ -55,21 +55,21 @@ const ClientGetContextV1Response = z
   .readonly();
 
 export type CustomAppPageContextProperties = {
-  readonly projectEnvironmentId?: string;
   readonly contentItemId?: string;
   readonly languageId?: string;
   readonly path?: string;
   readonly pageTitle?: string;
   readonly validationErrors?: Readonly<Record<string, ReadonlyArray<string>>>;
+  readonly currentPage: "itemEditor" | "other";
 };
 
 export const allCustomAppPageContextPropertyKeys = Object.keys({
-  projectEnvironmentId: "",
   contentItemId: "",
   languageId: "",
   path: "",
   pageTitle: "",
   validationErrors: "",
+  currentPage: "",
 } as const satisfies Record<keyof CustomAppPageContextProperties, string>);
 
 export const ClientGetCustomAppPageContextV1Request = z
@@ -87,12 +87,12 @@ export const ClientGetCustomAppPageContextV1Request = z
 
 const CustomAppPageContextPropertiesSchema = z
   .object({
-    projectEnvironmentId: z.string().optional(),
     contentItemId: z.string().uuid().optional(),
     languageId: z.string().uuid().optional(),
     path: z.string().optional(),
     pageTitle: z.string().optional(),
     validationErrors: z.record(z.string(), z.array(z.string()).readonly()).readonly().optional(),
+    currentPage: z.union([z.literal('itemEditor'), z.literal('other')]),
   } as const satisfies Required<{
     readonly [K in keyof CustomAppPageContextProperties]: z.ZodType<
       CustomAppPageContextProperties[K]

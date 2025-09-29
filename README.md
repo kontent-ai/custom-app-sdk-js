@@ -119,7 +119,6 @@ The following properties can be requested through the `getPageContext` function:
 
 | Property                | Type                                  | Description                                                          |
 |-------------------------|---------------------------------------|----------------------------------------------------------------------|
-| `projectEnvironmentId`  | string \| undefined                   | The current environment's ID                                         |
 | `contentItemId`         | string \| undefined                   | The ID of the content item being viewed or edited                   |
 | `languageId`            | string \| undefined                   | The ID of the current language                                      |
 | `path`                  | string \| undefined                   | The current path within the Kontent.ai application                  |
