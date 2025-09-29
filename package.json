@@ -25,11 +25,11 @@
     "format": "npx @biomejs/biome check --write ./src"
   },
   "dependencies": {
-    "zod": "^3.23.8"
+    "zod": "^4.1.11"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.2.4",
     "@types/node": "^22.9.0",
-    "typescript": "^5.6.3"
+    "typescript": "^5.9.2"
   }
 }

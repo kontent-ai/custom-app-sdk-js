@@ -1,5 +1,5 @@
 import { sendMessage } from "./iframeMessenger";
-import { ErrorMessage } from "./iframeSchema";
+import { type CustomAppPageContextProperties, ErrorMessage } from "./iframeSchema";
 import { matchesSchema } from "./matchesSchema";
 
 export enum ErrorCode {
@@ -48,32 +48,10 @@ export const getCustomAppContext = (): Promise<CustomAppContext> =>
     }
   });
 
-export type PageContext =
+export type PageContextResult<T extends ReadonlyArray<keyof CustomAppPageContextProperties>> =
   | {
       readonly isError: false;
-      readonly pageContext:
-        | (
-            | {
-                readonly path: string;
-                readonly pageTitle: string;
-                readonly pageType: "item-editor";
-                readonly contentItem: {
-                  readonly id: string;
-                  readonly codename: string;
-                  readonly language: {
-                    readonly id: string;
-                    readonly codename: string;
-                  };
-                };
-                readonly validationErrors: Readonly<Record<string, ReadonlyArray<string>>>;
-              }
-            | {
-                readonly path: string;
-                readonly pageTitle: string;
-                readonly pageType: "other";
-              }
-          )
-        | null;
+      readonly properties: { [K in T[number]]: CustomAppPageContextProperties[K] };
     }
   | {
       readonly isError: true;
@@ -81,20 +59,29 @@ export type PageContext =
       readonly description: string;
     };
 
-export const getPageContext = (): Promise<PageContext> =>
+export const getPageContext = <T extends ReadonlyArray<keyof CustomAppPageContextProperties>>(
+  properties: T,
+): Promise<PageContextResult<T>> =>
   new Promise((resolve, reject) => {
     try {
       sendMessage<"get-page-context@1.0.0">(
         {
           type: "get-page-context-request",
           version: "1.0.0",
-          payload: null,
+          payload: {
+            properties: properties as T,
+          },
         },
         (response) => {
           if (matchesSchema(ErrorMessage, response)) {
             resolve({ isError: true, code: response.code, description: response.description });
           } else {
-            resolve({ ...response.payload, isError: false });
+            resolve({
+              isError: false,
+              properties: response.payload.properties as {
+                [K in T[number]]: CustomAppPageContextProperties[K];
+              },
+            });
           }
         },
       );

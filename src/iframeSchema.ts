@@ -54,59 +54,59 @@ const ClientGetContextV1Response = z
   .or(ErrorMessage)
   .readonly();
 
-const ClientGetCustomAppPageContextV1Request = z
+export type CustomAppPageContextProperties = {
+  readonly projectEnvironmentId?: string;
+  readonly contentItemId?: string;
+  readonly languageId?: string;
+  readonly path?: string;
+  readonly pageTitle?: string;
+  readonly validationErrors?: Readonly<Record<string, ReadonlyArray<string>>>;
+};
+
+export const allCustomAppPageContextPropertyKeys = Object.keys({
+  projectEnvironmentId: "",
+  contentItemId: "",
+  languageId: "",
+  path: "",
+  pageTitle: "",
+  validationErrors: "",
+} as const satisfies Record<keyof CustomAppPageContextProperties, string>);
+
+export const ClientGetCustomAppPageContextV1Request = z
   .object({
     type: z.literal("get-page-context-request"),
     requestId: z.string().uuid(),
     version: z.literal("1.0.0"),
-    payload: z.null(),
-  })
-  .readonly();
-
-const baseCustomAppPageContextProperties = {
-  path: z.string(),
-  pageTitle: z.string(),
-};
-
-const ItemEditorCustomAppPageContextSchema = z
-  .object({
-    ...baseCustomAppPageContextProperties,
-    pageType: z.literal("item-editor"),
-    contentItem: z
+    payload: z
       .object({
-        id: z.string().uuid(),
-        codename: z.string(),
-        language: z
-          .object({
-            id: z.string().uuid(),
-            codename: z.string(),
-          })
-          .readonly(),
+        properties: z.array(z.enum(allCustomAppPageContextPropertyKeys)).readonly(),
       })
       .readonly(),
-    validationErrors: z.record(z.string(), z.array(z.string()).readonly()).readonly(),
   })
   .readonly();
 
-const CustomAppOtherPageContextSchema = z
+const CustomAppPageContextPropertiesSchema = z
   .object({
-    ...baseCustomAppPageContextProperties,
-    pageType: z.literal("other"),
-  })
+    projectEnvironmentId: z.string().optional(),
+    contentItemId: z.string().uuid().optional(),
+    languageId: z.string().uuid().optional(),
+    path: z.string().optional(),
+    pageTitle: z.string().optional(),
+    validationErrors: z.record(z.string(), z.array(z.string()).readonly()).readonly().optional(),
+  } as const satisfies Required<{
+    readonly [K in keyof CustomAppPageContextProperties]: z.ZodType<
+      CustomAppPageContextProperties[K]
+    >;
+  }>)
   .readonly();
 
-const CustomAppPageContextSchema = z.union([
-  ItemEditorCustomAppPageContextSchema,
-  CustomAppOtherPageContextSchema,
-]);
-
-const ClientGetCustomAppPageContextV1Response = z
+export const ClientGetCustomAppPageContextV1Response = z
   .object({
     type: z.literal("get-page-context-response"),
     isError: z.boolean(),
     payload: z
       .object({
-        pageContext: CustomAppPageContextSchema.nullable(),
+        properties: CustomAppPageContextPropertiesSchema,
       })
       .readonly(),
     requestId: z.string().uuid(),
