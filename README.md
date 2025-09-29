@@ -74,6 +74,59 @@ The `context` object contains data provided by the Kontent.ai application that y
 | `id`       | UUID   | The role's ID                                                        |
 | `codename` | string | The role's codename - applicable only for the _Project manager_ role |
 
+### getPageContext
+
+Use the `getPageContext` function to retrieve contextual information about the current page within the Kontent.ai application. The function takes an array of property names as an argument and returns a promise with a value of an object of type `PageContextResult`.
+
+#### Parameters
+
+| Parameter    | Type                                         | Description                                          |
+|--------------|----------------------------------------------|------------------------------------------------------|
+| `properties` | Array<keyof CustomAppPageContextProperties> | An array of property names to retrieve from the page context |
+
+#### PageContextResult
+
+| Property      | Type                   | Description                                                                  |
+|---------------|------------------------|------------------------------------------------------------------------------|
+| `isError`     | boolean                | Determines if there was an error while getting the page context             |
+| `code`        | ErrorCode enum \| null | The code of the error message                                                |
+| `description` | string \| null         | The description of the error message                                         |
+| `properties`  | object \| null         | Contains the requested page context properties                              |
+
+#### CustomAppPageContextProperties
+
+The following properties can be requested through the `getPageContext` function:
+
+| Property                | Type                                  | Description                                                          |
+|-------------------------|---------------------------------------|----------------------------------------------------------------------|
+| `projectEnvironmentId`  | string \| undefined                   | The current environment's ID                                         |
+| `contentItemId`         | string \| undefined                   | The ID of the content item being viewed or edited                   |
+| `languageId`            | string \| undefined                   | The ID of the current language                                      |
+| `path`                  | string \| undefined                   | The current path within the Kontent.ai application                  |
+| `pageTitle`             | string \| undefined                   | The title of the current page                                       |
+| `validationErrors`      | Record<string, string[]> \| undefined | A record of validation errors for content item fields               |
+
+#### Usage Example
+
+```typescript
+import { getPageContext, PageContextResult, CustomAppPageContextProperties } from "@kontent-ai/custom-app-sdk";
+
+// Request specific properties
+const response: PageContextResult<["contentItemId", "languageId"]> = await getPageContext([
+  "contentItemId",
+  "languageId"
+]);
+
+if (response.isError) {
+  console.error({ errorCode: response.code, description: response.description });
+} else {
+  console.log({
+    contentItemId: response.properties.contentItemId,
+    languageId: response.properties.languageId
+  });
+}
+```
+
 ## Contributing
 
 For Contributing please see  <a href="./CONTRIBUTING.md">`CONTRIBUTING.md`</a> for more information.
