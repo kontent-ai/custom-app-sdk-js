@@ -7,4 +7,6 @@ export type AllClientNotifications = ExtractNotification<AllClientMessages>;
 
 type AllClientMessages = Schema["client"][keyof Schema["client"]];
 
-type ExtractNotification<T extends AllClientMessages> = T extends { notification: infer N } ? N : never;
+type ExtractNotification<T extends AllClientMessages> = T extends { notification: infer N }
+  ? N
+  : never;

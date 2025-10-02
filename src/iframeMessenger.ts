@@ -1,8 +1,7 @@
+import type { z } from "zod";
 import { createUuid } from "./createUuid";
-import type { Schema } from "./iframeSchema";
-import { ClientPageContextChangedV1Notification } from "./iframeSchema";
+import type { ClientPageContextChangedV1Notification, Schema } from "./iframeSchema";
 import type { AllClientNotifications, AllClientResponses } from "./utilityTypes";
-import { z } from "zod";
 
 let callbacks: Readonly<Record<string, (data: unknown) => void>> = {};
 let notificationCallbacks: Readonly<Record<string, (data: unknown) => void>> = {};
@@ -20,27 +19,28 @@ export const addNotificationCallback = (
   subscriptionId: string,
   callback: (notification: z.infer<typeof ClientPageContextChangedV1Notification>) => void,
 ): void => {
-  notificationCallbacks = { ...notificationCallbacks, [subscriptionId]: callback } as typeof notificationCallbacks;
+  notificationCallbacks = {
+    ...notificationCallbacks,
+    [subscriptionId]: callback,
+  } as typeof notificationCallbacks;
 };
 
-export const removeNotificationCallback = (
-  subscriptionId: string,
-): void => {
+export const removeNotificationCallback = (subscriptionId: string): void => {
   notificationCallbacks = Object.fromEntries(
-    Object.entries(notificationCallbacks).filter(([subscriptionId]) => subscriptionId !== subscriptionId),
+    Object.entries(notificationCallbacks).filter(([subId]) => subId !== subscriptionId),
   );
 };
 
 const processMessage = (event: MessageEvent<AllClientResponses | AllClientNotifications>): void => {
   const message = event.data;
-  
+
   // Check if it's a notification
-  if ('subscriptionId' in message) {
+  if ("subscriptionId" in message) {
     const notification = message as AllClientNotifications;
     notificationCallbacks[message.subscriptionId]?.(notification);
     return;
   }
-  
+
   // Otherwise, it's a response
   const response = message as AllClientResponses;
   const callback = callbacks[response.requestId];

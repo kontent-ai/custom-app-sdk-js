@@ -92,7 +92,7 @@ const CustomAppPageContextPropertiesSchema = z
     path: z.string().optional(),
     pageTitle: z.string().optional(),
     validationErrors: z.record(z.string(), z.array(z.string()).readonly()).readonly().optional(),
-    currentPage: z.union([z.literal('itemEditor'), z.literal('other')]),
+    currentPage: z.union([z.literal("itemEditor"), z.literal("other")]),
   } as const satisfies Required<{
     readonly [K in keyof CustomAppPageContextProperties]: z.ZodType<
       CustomAppPageContextProperties[K]
@@ -172,9 +172,9 @@ const ClientSetPopupSizeV1Response = z
 
 export const ClientObservePageContextV1Request = z
   .object({
-    type: z.literal('observe-page-context-request'),
+    type: z.literal("observe-page-context-request"),
     requestId: z.string().uuid(),
-    version: z.literal('1.0.0'),
+    version: z.literal("1.0.0"),
     payload: z
       .object({
         properties: z.array(z.enum(allCustomAppPageContextPropertyKeys)).readonly(),
@@ -185,7 +185,7 @@ export const ClientObservePageContextV1Request = z
 
 export const ClientObservePageContextV1Response = z
   .object({
-    type: z.literal('observe-page-context-response'),
+    type: z.literal("observe-page-context-response"),
     isError: z.boolean(),
     payload: z
       .object({
@@ -194,25 +194,27 @@ export const ClientObservePageContextV1Response = z
       })
       .readonly(),
     requestId: z.string().uuid(),
-    version: z.literal('1.0.0'),
+    version: z.literal("1.0.0"),
   })
   .or(ErrorMessage)
   .readonly();
 
 export const ClientUnsubscribePageContextV1Request = z
   .object({
-    type: z.literal('unsubscribe-page-context-request'),
+    type: z.literal("unsubscribe-page-context-request"),
     requestId: z.string().uuid(),
-    version: z.literal('1.0.0'),
-    payload: z.object({
-      subscriptionId: z.string().uuid(),
-    }).readonly(),
+    version: z.literal("1.0.0"),
+    payload: z
+      .object({
+        subscriptionId: z.string().uuid(),
+      })
+      .readonly(),
   })
   .readonly();
 
 export const ClientUnsubscribePageContextV1Response = z
   .object({
-    type: z.literal('unsubscribe-page-context-response'),
+    type: z.literal("unsubscribe-page-context-response"),
     isError: z.boolean(),
     payload: z
       .object({
@@ -220,16 +222,16 @@ export const ClientUnsubscribePageContextV1Response = z
       })
       .readonly(),
     requestId: z.string().uuid(),
-    version: z.literal('1.0.0'),
+    version: z.literal("1.0.0"),
   })
   .or(ErrorMessage)
   .readonly();
 
 export const ClientPageContextChangedV1Notification = z
   .object({
-    type: z.literal('page-context-changed-notification'),
+    type: z.literal("page-context-changed-notification"),
     subscriptionId: z.string().uuid(),
-    version: z.literal('1.0.0'),
+    version: z.literal("1.0.0"),
     payload: z
       .object({
         properties: CustomAppPageContextPropertiesSchema.readonly(),

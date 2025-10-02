@@ -1,9 +1,23 @@
-import { sendMessage, addNotificationCallback, removeNotificationCallback } from "./iframeMessenger";
-import { type CustomAppPageContextProperties, ErrorMessage, ClientPageContextChangedV1Notification } from "./iframeSchema";
-import { matchesSchema } from "./matchesSchema";
-import { type PageContext, isItemEditorPageContext, isOtherPageContext, itemEditorPageProperties, otherPageProperties } from "./pageContexts";
+import type { z } from "zod";
+import {
+  addNotificationCallback,
+  removeNotificationCallback,
+  sendMessage,
+} from "./iframeMessenger";
 import type { Schema } from "./iframeSchema";
-import { z } from "zod";
+import {
+  type ClientPageContextChangedV1Notification,
+  type CustomAppPageContextProperties,
+  ErrorMessage,
+} from "./iframeSchema";
+import { matchesSchema } from "./matchesSchema";
+import {
+  isItemEditorPageContext,
+  isOtherPageContext,
+  itemEditorPageProperties,
+  otherPageProperties,
+  type PageContext,
+} from "./pageContexts";
 
 export enum ErrorCode {
   UnknownMessage = "unknown-message",
@@ -36,10 +50,10 @@ export const getCustomAppContext = async (): Promise<CustomAppContext> => {
     version: "1.0.0",
     payload: null,
   });
-  
+
   if (matchesSchema(ErrorMessage, response)) {
     return { isError: true, code: response.code, description: response.description };
-  } 
+  }
 
   return { ...response.payload, isError: false };
 };
@@ -69,11 +83,16 @@ export const getPageContext = async (): Promise<
   });
 
   if (matchesSchema(ErrorMessage, currentPageResponse)) {
-    return { isError: true, code: currentPageResponse.code, description: currentPageResponse.description };
+    return {
+      isError: true,
+      code: currentPageResponse.code,
+      description: currentPageResponse.description,
+    };
   }
 
   const currentPage = currentPageResponse.payload.properties.currentPage;
-  const propertiesToFetch = currentPage === "itemEditor" ? itemEditorPageProperties : otherPageProperties;
+  const propertiesToFetch =
+    currentPage === "itemEditor" ? itemEditorPageProperties : otherPageProperties;
 
   // Fetch all properties for the specific page type
   const response = await sendMessagePromise<"get-page-context@1.0.0">({
@@ -86,7 +105,7 @@ export const getPageContext = async (): Promise<
 
   if (matchesSchema(ErrorMessage, response)) {
     return { isError: true, code: response.code, description: response.description };
-  } 
+  }
 
   return getPageContextFromProperties(response.payload.properties);
 };
@@ -127,7 +146,7 @@ export const setPopupSize = async (
 
   if (matchesSchema(ErrorMessage, response)) {
     return { isError: true, code: response.code, description: response.description };
-  } 
+  }
 
   return { isError: false, success: response.payload.success };
 };
@@ -143,11 +162,16 @@ const sendMessagePromise = <TMessageType extends keyof Schema["client"]>(
     }
   });
 
-const outdatedPageContextError = { isError: true, code: ErrorCode.OutdatedPageContext, description: "The page context we received is outdated, please try to get the page context again." } as const;
+const outdatedPageContextError = {
+  isError: true,
+  code: ErrorCode.OutdatedPageContext,
+  description:
+    "The page context we received is outdated, please try to get the page context again.",
+} as const;
 
 export type ObservePageContextCallback = (context: PageContext) => void;
 
-export type ObservePageContextResult = 
+export type ObservePageContextResult =
   | {
       readonly isError: false;
       readonly context: PageContext;
@@ -160,7 +184,7 @@ export type ObservePageContextResult =
     };
 
 export const observePageContext = async (
-  callback: ObservePageContextCallback
+  callback: ObservePageContextCallback,
 ): Promise<ObservePageContextResult> => {
   // First, get current page to determine which properties to observe
   const currentPageResponse = await sendMessagePromise<"get-page-context@1.0.0">({
@@ -172,11 +196,16 @@ export const observePageContext = async (
   });
 
   if (matchesSchema(ErrorMessage, currentPageResponse)) {
-    return { isError: true, code: currentPageResponse.code, description: currentPageResponse.description };
+    return {
+      isError: true,
+      code: currentPageResponse.code,
+      description: currentPageResponse.description,
+    };
   }
 
   const currentPage = currentPageResponse.payload.properties.currentPage;
-  const propertiesToObserve = currentPage === "itemEditor" ? itemEditorPageProperties : otherPageProperties;
+  const propertiesToObserve =
+    currentPage === "itemEditor" ? itemEditorPageProperties : otherPageProperties;
 
   // Start observing with the appropriate properties
   const observeResponse = await sendMessagePromise<"observe-page-context@1.0.0">({
@@ -198,7 +227,9 @@ export const observePageContext = async (
   }
 
   // Set up notification handler
-  const notificationHandler = (notification: z.infer<typeof ClientPageContextChangedV1Notification>) => {
+  const notificationHandler = (
+    notification: z.infer<typeof ClientPageContextChangedV1Notification>,
+  ) => {
     const contextResult = getPageContextFromProperties(notification.payload.properties);
     if (!contextResult.isError) {
       callback(contextResult.context);
@@ -210,7 +241,7 @@ export const observePageContext = async (
   // Create unsubscribe function
   const unsubscribe = async (): Promise<void> => {
     removeNotificationCallback(observeResponse.payload.subscriptionId);
-    
+
     await sendMessagePromise<"unsubscribe-page-context@1.0.0">({
       type: "unsubscribe-page-context-request",
       version: "1.0.0",
@@ -228,10 +259,12 @@ export const observePageContext = async (
 };
 
 const getPageContextFromProperties = (
-  properties: CustomAppPageContextProperties
-): { isError: false; context: PageContext } | { isError: true; code: ErrorCode; description: string } => {
+  properties: CustomAppPageContextProperties,
+):
+  | { isError: false; context: PageContext }
+  | { isError: true; code: ErrorCode; description: string } => {
   const currentPage = properties.currentPage;
-  
+
   switch (currentPage) {
     case "itemEditor":
       return isItemEditorPageContext(properties)
