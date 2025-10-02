@@ -170,10 +170,80 @@ const ClientSetPopupSizeV1Response = z
   .or(ErrorMessage)
   .readonly();
 
+export const ClientObservePageContextV1Request = z
+  .object({
+    type: z.literal('observe-page-context-request'),
+    requestId: z.string().uuid(),
+    version: z.literal('1.0.0'),
+    payload: z
+      .object({
+        properties: z.array(z.enum(allCustomAppPageContextPropertyKeys)).readonly(),
+      })
+      .readonly(),
+  })
+  .readonly();
+
+export const ClientObservePageContextV1Response = z
+  .object({
+    type: z.literal('observe-page-context-response'),
+    isError: z.boolean(),
+    payload: z
+      .object({
+        properties: CustomAppPageContextPropertiesSchema.readonly(),
+        subscriptionId: z.string().uuid(),
+      })
+      .readonly(),
+    requestId: z.string().uuid(),
+    version: z.literal('1.0.0'),
+  })
+  .or(ErrorMessage)
+  .readonly();
+
+export const ClientUnsubscribePageContextV1Request = z
+  .object({
+    type: z.literal('unsubscribe-page-context-request'),
+    requestId: z.string().uuid(),
+    version: z.literal('1.0.0'),
+    payload: z.object({
+      subscriptionId: z.string().uuid(),
+    }).readonly(),
+  })
+  .readonly();
+
+export const ClientUnsubscribePageContextV1Response = z
+  .object({
+    type: z.literal('unsubscribe-page-context-response'),
+    isError: z.boolean(),
+    payload: z
+      .object({
+        success: z.boolean(),
+      })
+      .readonly(),
+    requestId: z.string().uuid(),
+    version: z.literal('1.0.0'),
+  })
+  .or(ErrorMessage)
+  .readonly();
+
+export const ClientPageContextChangedV1Notification = z
+  .object({
+    type: z.literal('page-context-changed-notification'),
+    subscriptionId: z.string().uuid(),
+    version: z.literal('1.0.0'),
+    payload: z
+      .object({
+        properties: CustomAppPageContextPropertiesSchema.readonly(),
+      })
+      .readonly(),
+  })
+  .readonly();
+
 export const AllClientRequestMessages = z.union([
   ClientGetContextV1Request,
   ClientGetCustomAppPageContextV1Request,
   ClientSetPopupSizeV1Request,
+  ClientObservePageContextV1Request,
+  ClientUnsubscribePageContextV1Request,
 ]);
 
 export type Schema = {
@@ -189,6 +259,15 @@ export type Schema = {
     "set-popup-size@1.0.0": {
       request: z.infer<typeof ClientSetPopupSizeV1Request>;
       response: z.infer<typeof ClientSetPopupSizeV1Response>;
+    };
+    "observe-page-context@1.0.0": {
+      request: z.infer<typeof ClientObservePageContextV1Request>;
+      response: z.infer<typeof ClientObservePageContextV1Response>;
+      notification: z.infer<typeof ClientPageContextChangedV1Notification>;
+    };
+    "unsubscribe-page-context@1.0.0": {
+      request: z.infer<typeof ClientUnsubscribePageContextV1Request>;
+      response: z.infer<typeof ClientUnsubscribePageContextV1Response>;
     };
   };
 };

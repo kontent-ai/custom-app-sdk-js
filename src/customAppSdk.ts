@@ -1,8 +1,9 @@
-import { sendMessage } from "./iframeMessenger";
-import { type CustomAppPageContextProperties, ErrorMessage } from "./iframeSchema";
+import { sendMessage, addNotificationCallback, removeNotificationCallback } from "./iframeMessenger";
+import { type CustomAppPageContextProperties, ErrorMessage, ClientPageContextChangedV1Notification } from "./iframeSchema";
 import { matchesSchema } from "./matchesSchema";
 import { type PageContext, isItemEditorPageContext, isOtherPageContext, itemEditorPageProperties, otherPageProperties } from "./pageContexts";
 import type { Schema } from "./iframeSchema";
+import { z } from "zod";
 
 export enum ErrorCode {
   UnknownMessage = "unknown-message",
@@ -87,19 +88,7 @@ export const getPageContext = async (): Promise<
     return { isError: true, code: response.code, description: response.description };
   } 
 
-  switch (currentPage) {
-    case "itemEditor": {
-      return isItemEditorPageContext(response.payload.properties)
-        ? { isError: false, context: response.payload.properties }
-        : outdatedPageContextError;
-    }
-    case "other":
-      return isOtherPageContext(response.payload.properties)
-        ? { isError: false, context: response.payload.properties }
-        : outdatedPageContextError;
-    default:
-      return outdatedPageContextError;
-  }
+  return getPageContextFromProperties(response.payload.properties);
 };
 
 export type SetPopupSizeResult =
@@ -155,3 +144,104 @@ const sendMessagePromise = <TMessageType extends keyof Schema["client"]>(
   });
 
 const outdatedPageContextError = { isError: true, code: ErrorCode.OutdatedPageContext, description: "The page context we received is outdated, please try to get the page context again." } as const;
+
+export type ObservePageContextCallback = (context: PageContext) => void;
+
+export type ObservePageContextResult = 
+  | {
+      readonly isError: false;
+      readonly context: PageContext;
+      readonly unsubscribe: () => Promise<void>;
+    }
+  | {
+      readonly isError: true;
+      readonly code: ErrorCode;
+      readonly description: string;
+    };
+
+export const observePageContext = async (
+  callback: ObservePageContextCallback
+): Promise<ObservePageContextResult> => {
+  // First, get current page to determine which properties to observe
+  const currentPageResponse = await sendMessagePromise<"get-page-context@1.0.0">({
+    type: "get-page-context-request",
+    version: "1.0.0",
+    payload: {
+      properties: ["currentPage"],
+    },
+  });
+
+  if (matchesSchema(ErrorMessage, currentPageResponse)) {
+    return { isError: true, code: currentPageResponse.code, description: currentPageResponse.description };
+  }
+
+  const currentPage = currentPageResponse.payload.properties.currentPage;
+  const propertiesToObserve = currentPage === "itemEditor" ? itemEditorPageProperties : otherPageProperties;
+
+  // Start observing with the appropriate properties
+  const observeResponse = await sendMessagePromise<"observe-page-context@1.0.0">({
+    type: "observe-page-context-request",
+    version: "1.0.0",
+    payload: {
+      properties: propertiesToObserve,
+    },
+  });
+
+  if (matchesSchema(ErrorMessage, observeResponse)) {
+    return { isError: true, code: observeResponse.code, description: observeResponse.description };
+  }
+
+  // Process the initial context
+  const initialContext = getPageContextFromProperties(observeResponse.payload.properties);
+  if (initialContext.isError) {
+    return initialContext;
+  }
+
+  // Set up notification handler
+  const notificationHandler = (notification: z.infer<typeof ClientPageContextChangedV1Notification>) => {
+    const contextResult = getPageContextFromProperties(notification.payload.properties);
+    if (!contextResult.isError) {
+      callback(contextResult.context);
+    }
+  };
+
+  addNotificationCallback(observeResponse.payload.subscriptionId, notificationHandler);
+
+  // Create unsubscribe function
+  const unsubscribe = async (): Promise<void> => {
+    removeNotificationCallback(observeResponse.payload.subscriptionId);
+    
+    await sendMessagePromise<"unsubscribe-page-context@1.0.0">({
+      type: "unsubscribe-page-context-request",
+      version: "1.0.0",
+      payload: {
+        subscriptionId: observeResponse.payload.subscriptionId,
+      },
+    });
+  };
+
+  return {
+    isError: false,
+    context: initialContext.context,
+    unsubscribe,
+  };
+};
+
+const getPageContextFromProperties = (
+  properties: CustomAppPageContextProperties
+): { isError: false; context: PageContext } | { isError: true; code: ErrorCode; description: string } => {
+  const currentPage = properties.currentPage;
+  
+  switch (currentPage) {
+    case "itemEditor":
+      return isItemEditorPageContext(properties)
+        ? { isError: false, context: properties }
+        : outdatedPageContextError;
+    case "other":
+      return isOtherPageContext(properties)
+        ? { isError: false, context: properties }
+        : outdatedPageContextError;
+    default:
+      return outdatedPageContextError;
+  }
+};

@@ -1,4 +1,10 @@
 import type { Schema } from "./iframeSchema";
 
-export type AllClientResponses = Schema["client"][keyof Schema["client"]]["response"];
-export type AllClientRequests = Schema["client"][keyof Schema["client"]]["request"];
+export type AllClientResponses = AllClientMessages["response"];
+export type AllClientRequests = AllClientMessages["request"];
+
+export type AllClientNotifications = ExtractNotification<AllClientMessages>;
+
+type AllClientMessages = Schema["client"][keyof Schema["client"]];
+
+type ExtractNotification<T extends AllClientMessages> = T extends { notification: infer N } ? N : never;
