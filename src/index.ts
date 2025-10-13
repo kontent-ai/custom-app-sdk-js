@@ -1,14 +1,9 @@
+export { Context } from "./contexts";
 export {
-  CustomAppContext,
+  ErrorCode,
   getCustomAppContext,
-  getPageContext,
-  ObservePageContextCallback,
-  ObservePageContextResult,
-  observePageContext,
-  PageContextResult,
+  observeContext,
   PopupSizeDimension,
-  SetPopupSizeResult,
   setPopupSize,
 } from "./customAppSdk";
-export { CustomAppPageContextProperties } from "./iframeSchema";
-export { PageContext } from "./pageContexts";
+export { CustomAppContextProperties } from "./iframeSchema";

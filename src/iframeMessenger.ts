@@ -1,6 +1,6 @@
 import type { z } from "zod";
 import { createUuid } from "./createUuid";
-import type { ClientPageContextChangedV1Notification, Schema } from "./iframeSchema";
+import type { ClientContextChangedV1Notification, Schema } from "./iframeSchema";
 import type { AllClientNotifications, AllClientResponses } from "./utilityTypes";
 
 let callbacks: Readonly<Record<string, (data: unknown) => void>> = {};
@@ -8,16 +8,21 @@ let notificationCallbacks: Readonly<Record<string, (data: unknown) => void>> = {
 
 export const sendMessage = <TMessageType extends keyof Schema["client"]>(
   message: Omit<Schema["client"][TMessageType]["request"], "requestId">,
-  callback: (data: Schema["client"][TMessageType]["response"]) => void,
-): void => {
-  const requestId = createUuid();
-  callbacks = { ...callbacks, [requestId]: callback } as typeof callbacks;
-  window.parent.postMessage({ ...message, requestId }, "*");
+): Promise<Schema["client"][TMessageType]["response"]> => {
+  return new Promise((resolve, reject) => {
+    try {
+      const requestId = createUuid();
+      callbacks = { ...callbacks, [requestId]: resolve } as typeof callbacks;
+      window.parent.postMessage({ ...message, requestId }, "*");
+    } catch (error) {
+      reject(error);
+    }
+  });
 };
 
 export const addNotificationCallback = (
   subscriptionId: string,
-  callback: (notification: z.infer<typeof ClientPageContextChangedV1Notification>) => void,
+  callback: (notification: z.infer<typeof ClientContextChangedV1Notification>) => void,
 ): void => {
   notificationCallbacks = {
     ...notificationCallbacks,
@@ -34,14 +39,12 @@ export const removeNotificationCallback = (subscriptionId: string): void => {
 const processMessage = (event: MessageEvent<AllClientResponses | AllClientNotifications>): void => {
   const message = event.data;
 
-  // Check if it's a notification
   if ("subscriptionId" in message) {
     const notification = message as AllClientNotifications;
     notificationCallbacks[message.subscriptionId]?.(notification);
     return;
   }
 
-  // Otherwise, it's a response
   const response = message as AllClientResponses;
   const callback = callbacks[response.requestId];
   callbacks = Object.fromEntries(
