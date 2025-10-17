@@ -18,6 +18,10 @@ export const itemEditorContextProperties = [
   "currentPage",
 ] as const satisfies ReadonlyArray<keyof CustomAppContextProperties>;
 
+const optionalProperties: ReadonlyArray<keyof CustomAppContextProperties> = [
+  "appConfig",
+] as const satisfies ReadonlyArray<keyof CustomAppContextProperties>;
+
 type RawItemEditorContext = Pick<
   CustomAppContextProperties,
   (typeof itemEditorContextProperties)[number]
@@ -30,9 +34,9 @@ export const isItemEditorContext = (
 ): context is ItemEditorContext => {
   return (
     context.currentPage === "itemEditor" &&
-    itemEditorContextProperties.every(
-      (property) => property in context && context[property] !== undefined,
-    )
+    itemEditorContextProperties
+      .filter((property) => !optionalProperties.includes(property))
+      .every((property) => property in context && context[property] !== undefined)
   );
 };
 
@@ -48,9 +52,9 @@ type OtherContext = Required<WithSpecificPage<CustomAppContextProperties, "other
 export const isOtherContext = (context: RawOtherContext): context is OtherContext => {
   return (
     context.currentPage === "other" &&
-    otherContextProperties.every(
-      (property) => property in context && context[property] !== undefined,
-    )
+    otherContextProperties
+      .filter((property) => !optionalProperties.includes(property))
+      .every((property) => property in context && context[property] !== undefined)
   );
 };
 
