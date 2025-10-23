@@ -1,9 +1,12 @@
-export { Context } from "./contexts";
+export {
+  Context as CustomAppContext,
+  ItemEditorContext as CustomAppItemEditorContext,
+  OtherContext as CustomAppOtherContext,
+} from "./contexts";
 export {
   ErrorCode,
   getCustomAppContext,
-  observeContext,
+  observeCustomAppContext,
   PopupSizeDimension,
   setPopupSize,
 } from "./customAppSdk";
-export { CustomAppContextProperties } from "./iframeSchema";

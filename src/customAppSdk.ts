@@ -96,7 +96,7 @@ const outdatedContextError = {
   description: "The context we received is outdated, please try to get the context again.",
 } as const;
 
-export const observeContext = async (
+export const observeCustomAppContext = async (
   callback: (context: Context) => void,
 ): Promise<Result<{ readonly context: Context; readonly unsubscribe: () => Promise<void> }>> => {
   const currentPageResponse = await sendMessage<"get-context@2.0.0">({

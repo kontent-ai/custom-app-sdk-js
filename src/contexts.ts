@@ -27,7 +27,9 @@ type RawItemEditorContext = Pick<
   (typeof itemEditorContextProperties)[number]
 >;
 
-type ItemEditorContext = Required<WithSpecificPage<CustomAppContextProperties, "itemEditor">>;
+export type ItemEditorContext = Required<
+  WithSpecificPage<CustomAppContextProperties, "itemEditor">
+>;
 
 export const isItemEditorContext = (
   context: RawItemEditorContext,
@@ -47,7 +49,7 @@ export const otherContextProperties = [
 
 type RawOtherContext = Pick<CustomAppContextProperties, (typeof otherContextProperties)[number]>;
 
-type OtherContext = Required<WithSpecificPage<CustomAppContextProperties, "other">>;
+export type OtherContext = Required<WithSpecificPage<CustomAppContextProperties, "other">>;
 
 export const isOtherContext = (context: RawOtherContext): context is OtherContext => {
   return (
