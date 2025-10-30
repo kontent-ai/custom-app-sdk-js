@@ -278,10 +278,6 @@ export type Schema = {
       request: z.infer<typeof ClientSetPopupSizeV1Request>;
       response: z.infer<typeof ClientSetPopupSizeV1Response>;
     };
-    "set-popup-size@1.2.0": {
-      request: z.infer<typeof ClientSetPopupSizeV1Request>;
-      response: z.infer<typeof ClientSetPopupSizeV1Response>;
-    };
     "observe-context@1.0.0": {
       request: z.infer<typeof ClientObserveContextV1Request>;
       response: z.infer<typeof ClientObserveContextV1Response>;
