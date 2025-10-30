@@ -40,17 +40,15 @@ const processMessage = (event: MessageEvent<AllClientResponses | AllClientNotifi
   const message = event.data;
 
   if ("subscriptionId" in message) {
-    const notification = message as AllClientNotifications;
-    notificationCallbacks[message.subscriptionId]?.(notification);
+    notificationCallbacks[message.subscriptionId]?.(message);
     return;
   }
 
-  const response = message as AllClientResponses;
-  const callback = callbacks[response.requestId];
+  const callback = callbacks[message.requestId];
   callbacks = Object.fromEntries(
-    Object.entries(callbacks).filter(([requestId]) => requestId !== response.requestId),
+    Object.entries(callbacks).filter(([requestId]) => requestId !== message.requestId),
   );
-  callback?.(response);
+  callback?.(message);
 };
 
 if (window.self === window.top) {
