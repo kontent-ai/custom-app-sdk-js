@@ -1,6 +1,6 @@
 {
   "name": "@kontent-ai/custom-app-sdk",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "The Kontent.ai Custom App SDK enhances the integration of your custom app with the Kontent.ai platform.",
   "license": "MIT",
   "author": "Kontent.ai",
@@ -25,11 +25,11 @@
     "format": "npx @biomejs/biome check --write ./src"
   },
   "dependencies": {
-    "zod": "^3.23.8"
+    "zod": "^4.1.11"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.2.4",
     "@types/node": "^22.9.0",
-    "typescript": "^5.6.3"
+    "typescript": "^5.9.2"
   }
 }

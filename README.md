@@ -29,12 +29,19 @@ npm install @kontent-ai/custom-app-sdk
 ```typescript
 import { getCustomAppContext, CustomAppContext } from "@kontent-ai/custom-app-sdk";
 
-const response: CustomAppContext = await getCustomAppContext();
+const response = await getCustomAppContext();
 
 if (response.isError) {
-  console.error({ errorCode: response.code, description: response.description});
+  console.error({ errorCode: response.code, description: response.description });
 } else {
-  console.log({ config: response.config, context: response.context });
+  // TypeScript will narrow the type based on currentPage
+  if (response.context.currentPage === "itemEditor") {
+    console.log({
+      contentItemId: response.context.contentItemId,
+      languageId: response.context.languageId,
+      validationErrors: response.context.validationErrors
+    });
+  }
 }
 ```
 
@@ -42,37 +49,173 @@ if (response.isError) {
 
 ### getCustomAppContext
 
-Use the `getCustomAppContext` function to retrieve the context of the custom app. The function takes no arguments and returns a promise with a value of an object of type `CustomAppContext`.
+Retrieves the context of the custom app. The function takes no arguments and automatically detects the current page type, returning the appropriate context with all relevant properties for that page.
 
-#### CustomAppContext
+#### Return Type
+
+Returns a promise that resolves to a discriminated union type with two possible states:
+
+##### Success Response (`isError: false`)
 
 | Property      | Type                   | Description                                                                  |
 |---------------|------------------------|------------------------------------------------------------------------------|
-| `isError`     | boolean                | Determines if there was an error while getting the context of the custom app |
-| `code`        | ErrorCode enum \| null | The code of the error message                                                |
-| `description` | string \| null         | The description of the error message                                         |
-| `context`     | object \| null         | Contains data provided by the Kontent.ai application                         |
-| `config`      | object \| null         | Contains JSON object specified in the custom app configuration               |
+| `isError`     | `false`                | Indicates the request was successful                                         |
+| `context`     | `CustomAppContext`     | A discriminated union of page-specific context objects                      |
 
-#### Config 
-The `config` object is a JSON object that can be defined within the Custom App configuration under Environment settings in the Kontent.ai app.
+##### Error Response (`isError: true`)
 
-#### Context 
-The `context` object contains data provided by the Kontent.ai application that you can leverage in your custom app. 
+| Property      | Type                   | Description                                                                  |
+|---------------|------------------------|------------------------------------------------------------------------------|
+| `isError`     | `true`                 | Indicates an error occurred                                                  |
+| `code`        | ErrorCode enum         | The code of the error message                                                |
+| `description` | string                 | The description of the error message                                         |
 
-| Property        | Type              | Description                                                              |
-|-----------------|-------------------|--------------------------------------------------------------------------|
-| `environmentId` | UUID              | The environment's ID                                                     |
-| `userId`        | string            | The current user's ID                                                    |
-| `userEmail`     | string            | The current user's email                                                 |
-| `userRoles`     | Array of UserRole | An array containing all the roles of the current user in the environment |
+#### CustomAppContext
 
-#### UserRole 
+`CustomAppContext` is a discriminated union type based on the `currentPage` property. Each page type includes only the relevant properties for that specific page:
+
+##### Item Editor Page Context
+
+When `currentPage` is `"itemEditor"`, the context includes:
+
+| Property                | Type                                  | Description                                                          |
+|-------------------------|---------------------------------------|----------------------------------------------------------------------|
+| `currentPage`           | `"itemEditor"`                       | Identifies this as an item editor page                              |
+| `environmentId`         | UUID                                  | The environment's ID                                                 |
+| `userId`                | string                                | The current user's ID                                                |
+| `userEmail`             | string                                | The current user's email                                             |
+| `userRoles`             | Array of UserRole                     | An array containing all the roles of the current user in the environment |
+| `path`                  | string                                | The current path within the Kontent.ai application                  |
+| `pageTitle`             | string                                | The title of the current page                                       |
+| `appConfig`             | unknown \| undefined                  | JSON object specified in the custom app configuration               |
+| `contentItemId`         | UUID                                  | The ID of the content item being edited                             |
+| `languageId`            | UUID                                  | The ID of the current language                                      |
+| `validationErrors`      | Record<string, string[]>              | A record of validation errors for content item fields               |
+
+##### Other Page Context
+
+When `currentPage` is `"other"`, the context includes:
+
+| Property                | Type                                  | Description                                                          |
+|-------------------------|---------------------------------------|----------------------------------------------------------------------|
+| `currentPage`           | `"other"`                            | Identifies this as any other page type                              |
+| `environmentId`         | UUID                                  | The environment's ID                                                 |
+| `userId`                | string                                | The current user's ID                                                |
+| `userEmail`             | string                                | The current user's email                                             |
+| `userRoles`             | Array of UserRole                     | An array containing all the roles of the current user in the environment |
+| `path`                  | string                                | The current path within the Kontent.ai application                  |
+| `pageTitle`             | string                                | The title of the current page                                       |
+| `appConfig`             | unknown \| undefined                  | JSON object specified in the custom app configuration               |
+
+#### UserRole
 
 | Property   | Type   | Description                                                          |
 |------------|--------|----------------------------------------------------------------------|
 | `id`       | UUID   | The role's ID                                                        |
 | `codename` | string | The role's codename - applicable only for the _Project manager_ role |
+
+### observeCustomAppContext
+
+Subscribes to context changes and receives notifications when the context is updated. The function takes a callback that will be invoked whenever the context changes.
+
+#### Parameters
+
+| Parameter  | Type                        | Description                                           |
+|------------|-----------------------------|-------------------------------------------------------|
+| `callback` | `(context: CustomAppContext) => void` | Function to be called when the context changes |
+
+#### Return Type
+
+Returns a promise that resolves to a discriminated union type with two possible states:
+
+##### Success Response (`isError: false`)
+
+| Property      | Type                   | Description                                                                  |
+|---------------|------------------------|------------------------------------------------------------------------------|
+| `isError`     | `false`                | Indicates the request was successful                                         |
+| `context`     | `CustomAppContext`     | The initial context value                                                    |
+| `unsubscribe` | `() => Promise<void>`  | Function to call to stop receiving context updates                          |
+
+##### Error Response (`isError: true`)
+
+| Property      | Type                   | Description                                                                  |
+|---------------|------------------------|------------------------------------------------------------------------------|
+| `isError`     | `true`                 | Indicates an error occurred                                                  |
+| `code`        | ErrorCode enum         | The code of the error message                                                |
+| `description` | string                 | The description of the error message                                         |
+
+#### Usage Example
+
+```typescript
+import { observeCustomAppContext } from "@kontent-ai/custom-app-sdk";
+
+const response = await observeCustomAppContext((context) => {
+  console.log("Context updated:", context);
+});
+
+if (response.isError) {
+  console.error({ errorCode: response.code, description: response.description });
+} else {
+  console.log("Initial context:", response.context);
+
+  // Later, when you want to stop observing
+  await response.unsubscribe();
+}
+```
+
+### setPopupSize
+
+Sets the size of the popup window when the custom app is displayed in a popup.
+
+#### Parameters
+
+| Parameter | Type                 | Description                                      |
+|-----------|----------------------|--------------------------------------------------|
+| `width`   | `PopupSizeDimension` | The desired width of the popup                   |
+| `height`  | `PopupSizeDimension` | The desired height of the popup                  |
+
+#### PopupSizeDimension
+
+A discriminated union type for specifying dimensions in either pixels or percentages:
+
+```typescript
+type PopupSizeDimension =
+  | { unit: "px"; value: number }
+  | { unit: "%"; value: number };
+```
+
+#### Return Type
+
+Returns a promise that resolves to a discriminated union type with two possible states:
+
+##### Success Response (`isError: false`)
+
+| Property      | Type                   | Description                                                                  |
+|---------------|------------------------|------------------------------------------------------------------------------|
+| `isError`     | `false`                | Indicates the request was successful                                         |
+
+##### Error Response (`isError: true`)
+
+| Property      | Type                   | Description                                                                  |
+|---------------|------------------------|------------------------------------------------------------------------------|
+| `isError`     | `true`                 | Indicates an error occurred                                                  |
+| `code`        | ErrorCode enum         | The code of the error message                                                |
+| `description` | string                 | The description of the error message                                         |
+
+#### Usage Example
+
+```typescript
+import { setPopupSize } from "@kontent-ai/custom-app-sdk";
+
+const response = await setPopupSize(
+  { unit: "px", value: 800 },
+  { unit: "%", value: 90 }
+);
+
+if (response.isError) {
+  console.error({ errorCode: response.code, description: response.description });
+}
+```
 
 ## Contributing
 

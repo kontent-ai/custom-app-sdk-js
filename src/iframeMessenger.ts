@@ -1,20 +1,49 @@
+import type { z } from "zod";
 import { createUuid } from "./createUuid";
-import type { Schema } from "./iframeSchema";
-import type { AllClientResponses } from "./utilityTypes";
+import type { ClientContextChangedV1Notification, Schema } from "./iframeSchema";
+import type { AllClientNotifications, AllClientResponses } from "./utilityTypes";
 
 let callbacks: Readonly<Record<string, (data: unknown) => void>> = {};
+let notificationCallbacks: Readonly<Record<string, (data: unknown) => void>> = {};
 
 export const sendMessage = <TMessageType extends keyof Schema["client"]>(
   message: Omit<Schema["client"][TMessageType]["request"], "requestId">,
-  callback: (data: Schema["client"][TMessageType]["response"]) => void,
-): void => {
-  const requestId = createUuid();
-  callbacks = { ...callbacks, [requestId]: callback } as typeof callbacks;
-  window.parent.postMessage({ ...message, requestId }, "*");
+): Promise<Schema["client"][TMessageType]["response"]> => {
+  return new Promise((resolve, reject) => {
+    try {
+      const requestId = createUuid();
+      callbacks = { ...callbacks, [requestId]: resolve } as typeof callbacks;
+      window.parent.postMessage({ ...message, requestId }, "*");
+    } catch (error) {
+      reject(error);
+    }
+  });
 };
 
-const processMessage = (event: MessageEvent<AllClientResponses>): void => {
+export const addNotificationCallback = (
+  subscriptionId: string,
+  callback: (notification: z.infer<typeof ClientContextChangedV1Notification>) => void,
+): void => {
+  notificationCallbacks = {
+    ...notificationCallbacks,
+    [subscriptionId]: callback,
+  } as typeof notificationCallbacks;
+};
+
+export const removeNotificationCallback = (subscriptionId: string): void => {
+  notificationCallbacks = Object.fromEntries(
+    Object.entries(notificationCallbacks).filter(([subId]) => subId !== subscriptionId),
+  );
+};
+
+const processMessage = (event: MessageEvent<AllClientResponses | AllClientNotifications>): void => {
   const message = event.data;
+
+  if ("subscriptionId" in message) {
+    notificationCallbacks[message.subscriptionId]?.(message);
+    return;
+  }
+
   const callback = callbacks[message.requestId];
   callbacks = Object.fromEntries(
     Object.entries(callbacks).filter(([requestId]) => requestId !== message.requestId),
