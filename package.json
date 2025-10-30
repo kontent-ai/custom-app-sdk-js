@@ -1,6 +1,6 @@
 {
   "name": "@kontent-ai/custom-app-sdk",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "The Kontent.ai Custom App SDK enhances the integration of your custom app with the Kontent.ai platform.",
   "license": "MIT",
   "author": "Kontent.ai",
