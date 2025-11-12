@@ -1,8 +1,23 @@
 import { z } from "zod";
 
+export type Uuid = string;
+
 export enum ErrorCode {
   UnknownMessage = "unknown-message",
   NotSupported = "not-supported",
+}
+
+export enum VariantCompletionStatus {
+  Unfinished = "Unfinished",
+  Ready = "Ready",
+  NotTranslated = "NotTranslated",
+  AllDone = "AllDone",
+}
+
+export enum PublishingState {
+  Published = "Published",
+  Unpublished = "Unpublished",
+  None = "None",
 }
 
 export const ErrorMessage = z
@@ -48,6 +63,19 @@ const CustomAppContextV1Schema = z
 
 export type CustomAppContextV1 = z.infer<typeof CustomAppContextV1Schema>;
 
+export type SerializedListingFilter = {
+  readonly selectedCollections: ReadonlyArray<string>;
+  readonly selectedContentItemStatus: ReadonlyArray<VariantCompletionStatus>;
+  readonly selectedContentTypes: ReadonlyArray<string>;
+  readonly selectedContributors: ReadonlyArray<string>;
+  readonly selectedPublishingStates: ReadonlyArray<PublishingState>;
+  readonly selectedSpaces: ReadonlyArray<string>;
+  readonly selectedTaxonomies: Readonly<Record<string, ReadonlyArray<string>>>;
+  readonly selectedWorkflows: Readonly<Record<string, ReadonlyArray<string>>>;
+  readonly searchPhrase: string;
+  readonly searchScope: ReadonlyArray<string>;
+};
+
 const ClientGetContextV1Response = z
   .object({
     type: z.literal("get-context-response"),
@@ -73,7 +101,13 @@ export type CustomAppContextProperties = {
   readonly path?: string;
   readonly pageTitle?: string;
   readonly validationErrors?: Readonly<Record<string, ReadonlyArray<string>>>;
-  readonly currentPage?: "itemEditor" | "other";
+  readonly currentPage?: "itemEditor" | "contentInventory" | "other";
+  readonly itemListingFilter?: SerializedListingFilter;
+  readonly itemListingSelection?: Readonly<{
+    readonly selectAll: boolean;
+    readonly selectedItemIds: ReadonlyArray<string>;
+    readonly unselectedItemIds: ReadonlyArray<string>;
+  }>;
 };
 
 export const allCustomAppContextPropertyKeys = Object.keys({
@@ -88,6 +122,8 @@ export const allCustomAppContextPropertyKeys = Object.keys({
   pageTitle: "",
   validationErrors: "",
   currentPage: "",
+  itemListingFilter: "",
+  itemListingSelection: "",
 } as const satisfies Record<keyof CustomAppContextProperties, string>);
 
 const ClientGetContextV2Request = z
@@ -125,7 +161,32 @@ const CustomAppContextPropertiesSchema = z
     path: z.string().optional(),
     pageTitle: z.string().optional(),
     validationErrors: z.record(z.string(), z.array(z.string()).readonly()).readonly().optional(),
-    currentPage: z.union([z.literal("itemEditor"), z.literal("other")]).optional(),
+    currentPage: z
+      .union([z.literal("itemEditor"), z.literal("contentInventory"), z.literal("other")])
+      .optional(),
+    itemListingFilter: z
+      .object({
+        selectedCollections: z.array(z.string()).readonly(),
+        selectedContentItemStatus: z.array(z.nativeEnum(VariantCompletionStatus)).readonly(),
+        selectedContentTypes: z.array(z.string()).readonly(),
+        selectedContributors: z.array(z.string()).readonly(),
+        selectedPublishingStates: z.array(z.nativeEnum(PublishingState)).readonly(),
+        selectedSpaces: z.array(z.string()).readonly(),
+        selectedTaxonomies: z.record(z.string(), z.array(z.string()).readonly()).readonly(),
+        selectedWorkflows: z.record(z.string(), z.array(z.string()).readonly()).readonly(),
+        searchPhrase: z.string(),
+        searchScope: z.array(z.string()).readonly(),
+      })
+      .readonly()
+      .optional(),
+    itemListingSelection: z
+      .object({
+        selectAll: z.boolean(),
+        selectedItemIds: z.array(z.string()).readonly(),
+        unselectedItemIds: z.array(z.string()).readonly(),
+      })
+      .readonly()
+      .optional(),
   } as const satisfies Required<{
     readonly [K in keyof CustomAppContextProperties]: z.ZodType<
       Partial<CustomAppContextProperties>[K]
