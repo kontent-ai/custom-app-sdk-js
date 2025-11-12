@@ -1,10 +1,10 @@
 import type { z } from "zod";
 import {
   type Context,
+  getContextPropertiesForPage,
   isItemEditorContext,
+  isItemListingContext,
   isOtherContext,
-  itemEditorContextProperties,
-  otherContextProperties,
 } from "./contexts";
 import {
   addNotificationCallback,
@@ -15,8 +15,15 @@ import {
   type ClientContextChangedV1Notification,
   type CustomAppContextProperties,
   ErrorMessage,
+  PublishingState,
+  type SerializedListingFilter,
+  type Uuid,
+  VariantCompletionStatus,
 } from "./iframeSchema";
 import { matchesSchema } from "./matchesSchema";
+
+export { PublishingState, VariantCompletionStatus };
+export type { SerializedListingFilter, Uuid };
 
 export enum ErrorCode {
   UnknownMessage = "unknown-message",
@@ -42,8 +49,7 @@ export const getCustomAppContext = async (): Promise<Result<{ readonly context: 
   }
 
   const currentPage = currentPageResponse.payload.properties.currentPage;
-  const propertiesToFetch =
-    currentPage === "itemEditor" ? itemEditorContextProperties : otherContextProperties;
+  const propertiesToFetch = getContextPropertiesForPage(currentPage);
 
   const response = await sendMessage<"get-context@2.0.0">({
     type: "get-context-request",
@@ -116,8 +122,7 @@ export const observeCustomAppContext = async (
   }
 
   const currentPage = currentPageResponse.payload.properties.currentPage;
-  const propertiesToObserve =
-    currentPage === "itemEditor" ? itemEditorContextProperties : otherContextProperties;
+  const propertiesToObserve = getContextPropertiesForPage(currentPage);
 
   const observeResponse = await sendMessage<"observe-context@1.0.0">({
     type: "observe-context-request",
@@ -190,6 +195,10 @@ const getContextFromProperties = (
   switch (currentPage) {
     case "itemEditor":
       return isItemEditorContext(properties)
+        ? { isError: false, context: properties }
+        : outdatedContextError;
+    case "contentInventory":
+      return isItemListingContext(properties)
         ? { isError: false, context: properties }
         : outdatedContextError;
     case "other":

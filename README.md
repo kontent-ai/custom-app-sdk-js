@@ -35,12 +35,21 @@ if (response.isError) {
   console.error({ errorCode: response.code, description: response.description });
 } else {
   // TypeScript will narrow the type based on currentPage
-  if (response.context.currentPage === "itemEditor") {
-    console.log({
-      contentItemId: response.context.contentItemId,
-      languageId: response.context.languageId,
-      validationErrors: response.context.validationErrors
-    });
+  switch (response.context.currentPage) {
+    case "itemEditor":
+      console.log({
+        contentItemId: response.context.contentItemId,
+        languageId: response.context.languageId,
+        validationErrors: response.context.validationErrors
+      });
+      break;
+    case "contentInventory":
+      console.log({
+        languageId: response.context.languageId,
+        itemListingFilter: response.context.itemListingFilter,
+        itemListingSelection: response.context.itemListingSelection
+      });
+      break;
   }
 }
 ```
@@ -74,38 +83,49 @@ Returns a promise that resolves to a discriminated union type with two possible 
 
 `CustomAppContext` is a discriminated union type based on the `currentPage` property. Each page type includes only the relevant properties for that specific page:
 
+##### Shared Properties
+
+All context types include the following shared properties:
+
+| Property                | Type                                  | Description                                                          |
+|-------------------------|---------------------------------------|----------------------------------------------------------------------|
+| `environmentId`         | UUID                                  | The environment's ID                                                 |
+| `userId`                | string                                | The current user's ID                                                |
+| `userEmail`             | string                                | The current user's email                                             |
+| `userRoles`             | Array\<UserRole\>                     | An array containing all the roles of the current user in the environment |
+| `path`                  | string                                | The current path within the Kontent.ai application                  |
+| `pageTitle`             | string                                | The title of the current page                                       |
+| `appConfig`             | unknown \| undefined                  | JSON object specified in the custom app configuration               |
+
 ##### Item Editor Page Context
 
-When `currentPage` is `"itemEditor"`, the context includes:
+When `currentPage` is `"itemEditor"`, the context includes the shared properties above plus:
 
 | Property                | Type                                  | Description                                                          |
 |-------------------------|---------------------------------------|----------------------------------------------------------------------|
 | `currentPage`           | `"itemEditor"`                       | Identifies this as an item editor page                              |
-| `environmentId`         | UUID                                  | The environment's ID                                                 |
-| `userId`                | string                                | The current user's ID                                                |
-| `userEmail`             | string                                | The current user's email                                             |
-| `userRoles`             | Array of UserRole                     | An array containing all the roles of the current user in the environment |
-| `path`                  | string                                | The current path within the Kontent.ai application                  |
-| `pageTitle`             | string                                | The title of the current page                                       |
-| `appConfig`             | unknown \| undefined                  | JSON object specified in the custom app configuration               |
 | `contentItemId`         | UUID                                  | The ID of the content item being edited                             |
 | `languageId`            | UUID                                  | The ID of the current language                                      |
-| `validationErrors`      | Record<string, string[]>              | A record of validation errors for content item fields               |
+| `validationErrors`      | Record<string, Array<string>>              | A record of validation errors for content item fields               |
+
+##### Content Inventory Page Context
+
+When `currentPage` is `"contentInventory"`, the context includes the shared properties above plus:
+
+| Property                | Type                                  | Description                                                          |
+|-------------------------|---------------------------------------|----------------------------------------------------------------------|
+| `currentPage`           | `"contentInventory"`                 | Identifies this as a content inventory (item listing) page          |
+| `languageId`            | UUID                                  | The ID of the current language                                      |
+| `itemListingFilter`     | SerializedListingFilter               | The current filter settings applied to the content item listing     |
+| `itemListingSelection`  | ItemListingSelection                  | The current selection state of items in the listing                 |
 
 ##### Other Page Context
 
-When `currentPage` is `"other"`, the context includes:
+When `currentPage` is `"other"`, the context includes the shared properties above plus:
 
 | Property                | Type                                  | Description                                                          |
 |-------------------------|---------------------------------------|----------------------------------------------------------------------|
 | `currentPage`           | `"other"`                            | Identifies this as any other page type                              |
-| `environmentId`         | UUID                                  | The environment's ID                                                 |
-| `userId`                | string                                | The current user's ID                                                |
-| `userEmail`             | string                                | The current user's email                                             |
-| `userRoles`             | Array of UserRole                     | An array containing all the roles of the current user in the environment |
-| `path`                  | string                                | The current path within the Kontent.ai application                  |
-| `pageTitle`             | string                                | The title of the current page                                       |
-| `appConfig`             | unknown \| undefined                  | JSON object specified in the custom app configuration               |
 
 #### UserRole
 
@@ -113,6 +133,54 @@ When `currentPage` is `"other"`, the context includes:
 |------------|--------|----------------------------------------------------------------------|
 | `id`       | UUID   | The role's ID                                                        |
 | `codename` | string | The role's codename - applicable only for the _Project manager_ role |
+
+#### SerializedListingFilter
+
+The filter settings applied to the content item listing.
+
+| Property                    | Type                                                | Description                                                  |
+|-----------------------------|-----------------------------------------------------|--------------------------------------------------------------|
+| `selectedCollections`       | Array\<string\>                                     | IDs of collections selected in the filter                    |
+| `selectedContentItemStatus` | Array\<VariantCompletionStatus\>                    | Selected content item workflow status states                 |
+| `selectedContentTypes`      | Array\<string\>                                     | IDs of content types selected in the filter                  |
+| `selectedContributors`      | Array\<string\>                                     | IDs of contributors selected in the filter                   |
+| `selectedPublishingStates`  | Array\<PublishingState\>                            | Selected publishing states                                   |
+| `selectedSpaces`            | Array\<string\>                                     | IDs of spaces selected in the filter                         |
+| `selectedTaxonomies`        | Record\<string, Array\<string\>\>                   | Selected taxonomy terms grouped by taxonomy ID               |
+| `selectedWorkflows`         | Record\<string, Array\<string\>\>                   | Selected workflow steps grouped by workflow ID               |
+| `searchPhrase`              | string                                              | The search phrase entered by the user                        |
+| `searchScope`               | Array\<string\>                                     | The scope of the search (e.g., content item names, elements) |
+
+##### VariantCompletionStatus
+
+An enum representing the possible workflow completion status states for content item variants.
+
+| Value            | Description                                    |
+|------------------|------------------------------------------------|
+| `"unfinished"`   | Content item variant is unfinished             |
+| `"ready"`        | Content item variant is ready                  |
+| `"notTranslated"`| Content item variant is not translated         |
+| `"allDone"`      | Content item variant is all done               |
+
+##### PublishingState
+
+An enum representing the possible publishing states for content items.
+
+| Value          | Description                                       |
+|----------------|---------------------------------------------------|
+| `"published"`  | Content item is published                         |
+| `"unpublished"`| Content item is unpublished                       |
+| `"none"`       | Content item has no publishing state              |
+
+#### ItemListingSelection
+
+The current selection state of items in the content inventory listing.
+
+| Property              | Type           | Description                                                                      |
+|-----------------------|----------------|----------------------------------------------------------------------------------|
+| `selectAll`           | boolean        | Whether the "select all" option is active                                        |
+| `selectedItemIds`     | Array\<UUID\>  | IDs of content items that are selected (when `selectAll` is false, these are the selected items; when `selectAll` is true, these are exceptions to the selection) |
+| `unselectedItemIds`   | Array\<UUID\>  | IDs of content items that are explicitly unselected (used when `selectAll` is true to exclude specific items) |
 
 ### observeCustomAppContext
 
