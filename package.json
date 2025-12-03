@@ -22,7 +22,9 @@
   "scripts": {
     "build": "tsc",
     "format-check": "npx @biomejs/biome ci ./src",
-    "format": "npx @biomejs/biome check --write ./src"
+    "format": "npx @biomejs/biome check --write ./src",
+    "test": "vitest run",
+    "typecheck": "vitest --run --typecheck"
   },
   "dependencies": {
     "zod": "^4.1.11"
@@ -30,6 +32,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.2.4",
     "@types/node": "^22.9.0",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.1"
   }
 }
