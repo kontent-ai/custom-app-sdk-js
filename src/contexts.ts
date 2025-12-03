@@ -1,5 +1,7 @@
 import type { CustomAppContextProperties } from "./iframeSchema";
 
+type MakeOptional<T, K extends PropertyKey> = Omit<T, K & keyof T> & Partial<Pick<T, K & keyof T>>;
+
 const sharedContextProperties = [
   "path",
   "pageTitle",
@@ -27,9 +29,10 @@ type RawItemEditorContext = Pick<
   (typeof itemEditorContextProperties)[number]
 >;
 
-export type ItemEditorContext = Required<
-  WithSpecificPage<CustomAppContextProperties, "itemEditor">
->;
+export type ItemEditorContext = MakeOptional<
+  Required<RawItemEditorContext>,
+  (typeof optionalProperties)[number]
+> & { readonly currentPage: "itemEditor" };
 
 export const isItemEditorContext = (
   context: RawItemEditorContext,
@@ -55,9 +58,10 @@ type RawItemListingContext = Pick<
   (typeof itemListingContextProperties)[number]
 >;
 
-export type ItemListingContext = Required<
-  WithSpecificPage<CustomAppContextProperties, "contentInventory">
->;
+export type ItemListingContext = MakeOptional<
+  Required<RawItemListingContext>,
+  (typeof optionalProperties)[number]
+> & { readonly currentPage: "contentInventory" };
 
 export const isItemListingContext = (
   context: RawItemListingContext,
@@ -77,7 +81,10 @@ const otherContextProperties = [
 
 type RawOtherContext = Pick<CustomAppContextProperties, (typeof otherContextProperties)[number]>;
 
-export type OtherContext = Required<WithSpecificPage<CustomAppContextProperties, "other">>;
+export type OtherContext = MakeOptional<
+  Required<RawOtherContext>,
+  (typeof optionalProperties)[number]
+> & { readonly currentPage: "other" };
 
 export const isOtherContext = (context: RawOtherContext): context is OtherContext => {
   return (
@@ -89,11 +96,6 @@ export const isOtherContext = (context: RawOtherContext): context is OtherContex
 };
 
 export type Context = ItemEditorContext | ItemListingContext | OtherContext;
-
-type WithSpecificPage<
-  T extends CustomAppContextProperties,
-  Page extends Context["currentPage"],
-> = T & { readonly currentPage: Page };
 
 export const getContextPropertiesForPage = (
   currentPage: Context["currentPage"] | undefined,
