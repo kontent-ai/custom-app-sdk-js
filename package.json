@@ -23,8 +23,7 @@
     "build": "tsc",
     "format-check": "biome ci ./src",
     "format": "biome check --write ./src",
-    "test": "vitest run",
-    "typecheck": "vitest --run --typecheck"
+    "test": "vitest run --typecheck"
   },
   "dependencies": {
     "zod": "^4.1.11"
@@ -33,6 +32,6 @@
     "@biomejs/biome": "^2.2.4",
     "@types/node": "^22.9.0",
     "typescript": "^5.9.2",
-    "vitest": "^3.2.1"
+    "vitest": "^4.0.15"
   }
 }

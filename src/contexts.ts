@@ -1,6 +1,6 @@
 import type { CustomAppContextProperties } from "./iframeSchema";
 
-type MakeOptional<T, K extends PropertyKey> = Omit<T, K & keyof T> & Partial<Pick<T, K & keyof T>>;
+type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 const sharedContextProperties = [
   "path",
@@ -20,9 +20,12 @@ const itemEditorContextProperties = [
   "currentPage",
 ] as const satisfies ReadonlyArray<keyof CustomAppContextProperties>;
 
-const optionalProperties: ReadonlyArray<keyof CustomAppContextProperties> = [
-  "appConfig",
-] as const satisfies ReadonlyArray<keyof CustomAppContextProperties>;
+const optionalProperties = ["appConfig"] as const satisfies ReadonlyArray<
+  keyof CustomAppContextProperties
+>;
+
+const isOptionalProperty = (property: keyof CustomAppContextProperties): boolean =>
+  !(optionalProperties as readonly string[]).includes(property);
 
 type RawItemEditorContext = Pick<
   CustomAppContextProperties,
@@ -40,7 +43,7 @@ export const isItemEditorContext = (
   return (
     context.currentPage === "itemEditor" &&
     itemEditorContextProperties
-      .filter((property) => !optionalProperties.includes(property))
+      .filter(isOptionalProperty)
       .every((property) => property in context && context[property] !== undefined)
   );
 };
@@ -69,7 +72,7 @@ export const isItemListingContext = (
   return (
     context.currentPage === "contentInventory" &&
     itemListingContextProperties
-      .filter((property) => !optionalProperties.includes(property))
+      .filter(isOptionalProperty)
       .every((property) => property in context && context[property] !== undefined)
   );
 };
@@ -90,7 +93,7 @@ export const isOtherContext = (context: RawOtherContext): context is OtherContex
   return (
     context.currentPage === "other" &&
     otherContextProperties
-      .filter((property) => !optionalProperties.includes(property))
+      .filter(isOptionalProperty)
       .every((property) => property in context && context[property] !== undefined)
   );
 };

@@ -3,6 +3,7 @@ import type { Context, ItemEditorContext, ItemListingContext, OtherContext } fro
 
 describe("Context types have correct properties", () => {
   test("ItemEditorContext has only item editor properties", () => {
+    expectTypeOf<ItemEditorContext["appConfig"]>().toBeNullable();
     expectTypeOf<keyof ItemEditorContext>().toEqualTypeOf<
       | "path"
       | "pageTitle"
