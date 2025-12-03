@@ -21,8 +21,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "format-check": "npx @biomejs/biome ci ./src",
-    "format": "npx @biomejs/biome check --write ./src",
+    "format-check": "biome ci ./src",
+    "format": "biome check --write ./src",
     "test": "vitest run",
     "typecheck": "vitest --run --typecheck"
   },

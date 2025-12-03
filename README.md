@@ -18,6 +18,8 @@ It facilitates the communication between the Kontent.ai app and the custom app p
 ### Installation
 
 ```sh
+pnpm add @kontent-ai/custom-app-sdk
+# or
 npm install @kontent-ai/custom-app-sdk
 ```
 
