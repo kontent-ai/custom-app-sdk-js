@@ -26,12 +26,12 @@
     "test": "vitest run --typecheck"
   },
   "dependencies": {
-    "zod": "^4.1.11"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.2.4",
-    "@types/node": "^22.9.0",
-    "typescript": "^5.9.2",
-    "vitest": "^4.0.15"
+    "@biomejs/biome": "^2.4.4",
+    "@types/node": "^25.3.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   }
 }

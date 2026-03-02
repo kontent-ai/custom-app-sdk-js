@@ -1,11 +1,5 @@
 import type { z } from "zod";
-import {
-  type Context,
-  getContextPropertiesForPage,
-  isItemEditorContext,
-  isItemListingContext,
-  isOtherContext,
-} from "./contexts";
+import { type Context, getContextPropertiesForPage, isContext } from "./contexts";
 import {
   addNotificationCallback,
   removeNotificationCallback,
@@ -189,25 +183,7 @@ export const observeCustomAppContext = async (
 
 const getContextFromProperties = (
   properties: CustomAppContextProperties,
-): Result<{ readonly context: Context }> => {
-  const currentPage = properties.currentPage;
-
-  switch (currentPage) {
-    case "itemEditor":
-      return isItemEditorContext(properties)
-        ? { isError: false, context: properties }
-        : outdatedContextError;
-    case "contentInventory":
-      return isItemListingContext(properties)
-        ? { isError: false, context: properties }
-        : outdatedContextError;
-    case "other":
-      return isOtherContext(properties)
-        ? { isError: false, context: properties }
-        : outdatedContextError;
-    default:
-      return outdatedContextError;
-  }
-};
+): Result<{ readonly context: Context }> =>
+  isContext(properties) ? { isError: false, context: properties } : outdatedContextError;
 
 type Result<T> = ({ isError: false } & T) | { isError: true; code: ErrorCode; description: string };
