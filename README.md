@@ -52,6 +52,38 @@ if (response.isError) {
         itemListingSelection: response.context.itemListingSelection
       });
       break;
+    case "contentTypeListing":
+    case "snippetListing":
+      console.log({
+        contentModelListingSelection: response.context.contentModelListingSelection,
+        contentModelListingFilter: response.context.contentModelListingFilter
+      });
+      break;
+    case "taxonomyListing":
+      console.log({
+        contentModelListingSelection: response.context.contentModelListingSelection
+      });
+      break;
+    case "contentTypeEditor":
+      console.log({
+        contentTypeId: response.context.contentTypeId,
+        hasUnsavedChanges: response.context.hasUnsavedChanges,
+        validationErrors: response.context.validationErrors
+      });
+      break;
+    case "snippetEditor":
+      console.log({
+        snippetId: response.context.snippetId,
+        hasUnsavedChanges: response.context.hasUnsavedChanges,
+        validationErrors: response.context.validationErrors
+      });
+      break;
+    case "taxonomyEditor":
+      console.log({
+        taxonomyGroupId: response.context.taxonomyGroupId,
+        hasUnsavedChanges: response.context.hasUnsavedChanges
+      });
+      break;
   }
 }
 ```
@@ -121,6 +153,67 @@ When `currentPage` is `"contentInventory"`, the context includes the shared prop
 | `itemListingFilter`     | SerializedListingFilter               | The current filter settings applied to the content item listing     |
 | `itemListingSelection`  | ItemListingSelection                  | The current selection state of items in the listing                 |
 
+##### Content Type Listing Page Context
+
+When `currentPage` is `"contentTypeListing"`, the context includes the shared properties above plus:
+
+| Property                       | Type                              | Description                                                          |
+|--------------------------------|-----------------------------------|----------------------------------------------------------------------|
+| `currentPage`                  | `"contentTypeListing"`           | Identifies this as a content type listing page                      |
+| `contentModelListingSelection` | ContentModelListingSelection      | The current selection state of content types in the listing         |
+| `contentModelListingFilter`    | ContentModelListingFilter         | The current filter settings applied to the content type listing     |
+
+##### Content Type Editor Page Context
+
+When `currentPage` is `"contentTypeEditor"`, the context includes the shared properties above plus:
+
+| Property                | Type                                  | Description                                                          |
+|-------------------------|---------------------------------------|----------------------------------------------------------------------|
+| `currentPage`           | `"contentTypeEditor"`                | Identifies this as a content type editor page                       |
+| `contentTypeId`         | UUID \| null                          | The ID of the content type being edited, or `null` when creating new |
+| `hasUnsavedChanges`     | boolean                               | Whether the content type has unsaved changes                        |
+| `validationErrors`      | Record<string, Array<string>>              | A record of validation errors for content type fields               |
+
+##### Snippet Listing Page Context
+
+When `currentPage` is `"snippetListing"`, the context includes the shared properties above plus:
+
+| Property                       | Type                              | Description                                                          |
+|--------------------------------|-----------------------------------|----------------------------------------------------------------------|
+| `currentPage`                  | `"snippetListing"`               | Identifies this as a snippet listing page                           |
+| `contentModelListingSelection` | ContentModelListingSelection      | The current selection state of snippets in the listing              |
+| `contentModelListingFilter`    | ContentModelListingFilter         | The current filter settings applied to the snippet listing          |
+
+##### Snippet Editor Page Context
+
+When `currentPage` is `"snippetEditor"`, the context includes the shared properties above plus:
+
+| Property                | Type                                  | Description                                                          |
+|-------------------------|---------------------------------------|----------------------------------------------------------------------|
+| `currentPage`           | `"snippetEditor"`                    | Identifies this as a snippet editor page                            |
+| `snippetId`             | UUID \| null                            | The ID of the snippet being edited, or `null` when creating new     |
+| `hasUnsavedChanges`     | boolean                               | Whether the snippet has unsaved changes                             |
+| `validationErrors`      | Record<string, Array<string>>              | A record of validation errors for snippet fields                    |
+
+##### Taxonomy Listing Page Context
+
+When `currentPage` is `"taxonomyListing"`, the context includes the shared properties above plus:
+
+| Property                       | Type                              | Description                                                          |
+|--------------------------------|-----------------------------------|----------------------------------------------------------------------|
+| `currentPage`                  | `"taxonomyListing"`              | Identifies this as a taxonomy listing page                          |
+| `contentModelListingSelection` | ContentModelListingSelection      | The current selection state of taxonomy groups in the listing       |
+
+##### Taxonomy Editor Page Context
+
+When `currentPage` is `"taxonomyEditor"`, the context includes the shared properties above plus:
+
+| Property                | Type                                  | Description                                                          |
+|-------------------------|---------------------------------------|----------------------------------------------------------------------|
+| `currentPage`           | `"taxonomyEditor"`                   | Identifies this as a taxonomy editor page                           |
+| `taxonomyGroupId`       | UUID                                  | The ID of the taxonomy group being edited                           |
+| `hasUnsavedChanges`     | boolean                               | Whether the taxonomy group has unsaved changes                      |
+
 ##### Other Page Context
 
 When `currentPage` is `"other"`, the context includes the shared properties above plus:
@@ -183,6 +276,22 @@ The current selection state of items in the content inventory listing.
 | `selectAll`           | boolean        | Whether the "select all" option is active                                        |
 | `selectedItemIds`     | Array\<UUID\>  | IDs of content items that are selected (when `selectAll` is false, these are the selected items; when `selectAll` is true, these are exceptions to the selection) |
 | `unselectedItemIds`   | Array\<UUID\>  | IDs of content items that are explicitly unselected (used when `selectAll` is true to exclude specific items) |
+
+#### ContentModelListingSelection
+
+The current selection state of items in the content model listing pages (content types, snippets, taxonomies).
+
+| Property              | Type           | Description                                                                      |
+|-----------------------|----------------|----------------------------------------------------------------------------------|
+| `selectedIds`         | Array\<UUID\>  | IDs of the selected items in the listing                                        |
+
+#### ContentModelListingFilter
+
+The filter settings applied to content model listing pages (content types, snippets).
+
+| Property              | Type           | Description                                                                      |
+|-----------------------|----------------|----------------------------------------------------------------------------------|
+| `searchPhrase`        | string         | The search phrase entered by the user                                           |
 
 ### observeCustomAppContext
 

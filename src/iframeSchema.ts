@@ -101,12 +101,31 @@ export type CustomAppContextProperties = {
   readonly path?: string;
   readonly pageTitle?: string;
   readonly validationErrors?: Readonly<Record<string, ReadonlyArray<string>>>;
-  readonly currentPage?: "itemEditor" | "contentInventory" | "other";
+  readonly currentPage?:
+    | "itemEditor"
+    | "contentInventory"
+    | "contentTypeListing"
+    | "contentTypeEditor"
+    | "snippetListing"
+    | "snippetEditor"
+    | "taxonomyListing"
+    | "taxonomyEditor"
+    | "other";
   readonly itemListingFilter?: SerializedListingFilter;
   readonly itemListingSelection?: Readonly<{
     readonly selectAll: boolean;
     readonly selectedItemIds: ReadonlyArray<string>;
     readonly unselectedItemIds: ReadonlyArray<string>;
+  }>;
+  readonly contentTypeId?: string | null; // null when creating a new content type
+  readonly snippetId?: string | null; // null when creating a new content type snippet
+  readonly taxonomyGroupId?: string;
+  readonly hasUnsavedChanges?: boolean;
+  readonly contentModelListingSelection?: Readonly<{
+    readonly selectedIds: ReadonlyArray<string>;
+  }>;
+  readonly contentModelListingFilter?: Readonly<{
+    readonly searchPhrase: string;
   }>;
 };
 
@@ -124,6 +143,12 @@ export const allCustomAppContextPropertyKeys = Object.keys({
   currentPage: "",
   itemListingFilter: "",
   itemListingSelection: "",
+  contentTypeId: "",
+  snippetId: "",
+  taxonomyGroupId: "",
+  hasUnsavedChanges: "",
+  contentModelListingSelection: "",
+  contentModelListingFilter: "",
 } as const satisfies Record<keyof CustomAppContextProperties, string>);
 
 const ClientGetContextV2Request = z
@@ -162,7 +187,17 @@ const CustomAppContextPropertiesSchema = z
     pageTitle: z.string().optional(),
     validationErrors: z.record(z.string(), z.array(z.string()).readonly()).readonly().optional(),
     currentPage: z
-      .union([z.literal("itemEditor"), z.literal("contentInventory"), z.literal("other")])
+      .union([
+        z.literal("itemEditor"),
+        z.literal("contentInventory"),
+        z.literal("contentTypeListing"),
+        z.literal("contentTypeEditor"),
+        z.literal("snippetListing"),
+        z.literal("snippetEditor"),
+        z.literal("taxonomyListing"),
+        z.literal("taxonomyEditor"),
+        z.literal("other"),
+      ])
       .optional(),
     itemListingFilter: z
       .object({
@@ -184,6 +219,22 @@ const CustomAppContextPropertiesSchema = z
         selectAll: z.boolean(),
         selectedItemIds: z.array(z.string()).readonly(),
         unselectedItemIds: z.array(z.string()).readonly(),
+      })
+      .readonly()
+      .optional(),
+    contentTypeId: z.string().uuid().or(z.null()).optional(),
+    snippetId: z.string().uuid().or(z.null()).optional(),
+    taxonomyGroupId: z.string().uuid().optional(),
+    hasUnsavedChanges: z.boolean().optional(),
+    contentModelListingSelection: z
+      .object({
+        selectedIds: z.array(z.string()).readonly(),
+      })
+      .readonly()
+      .optional(),
+    contentModelListingFilter: z
+      .object({
+        searchPhrase: z.string(),
       })
       .readonly()
       .optional(),
